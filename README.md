@@ -1,2 +1,2 @@
 # AquaRide
-Set de piezas creadas para ensamblarse en una máquina que permita el desplazamiento por una pecera
+Set de piezas creadas para ensamblarse en una máquina que permite el desplazamiento por una pecera
