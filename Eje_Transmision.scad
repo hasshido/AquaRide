@@ -17,11 +17,17 @@ use<publicDomainGear.scad>;
 teethNum=9;
 Diam_eje_rotatorio=23;
 Diam_Plataforma_sup=40;
-Grosor_Plataforma_sup=6;
+Grosor_Plataforma_sup=10;
 Altura_eje=100;
 Altura_eje_z=270;
 grosor_eje=4;
 diam_eje_amplif=5;
+ancho_rueda_servo_sup=9;
+Altura_ejeAmp=45;
+
+Ancho_amplif_grande=13;
+Amplif_Pos_X=27.5;
+ancho_soporte_amplif=15;
 
 margen_holgura=2;
 altura_tope=42; // Establecer en base al tamaño del motor
@@ -29,6 +35,7 @@ altura_rueda=8;
 modulo_transmision=4;
 modulo_transmision_vert=10;
 modulo_transmision_amp=8;
+
 
 
 
@@ -55,7 +62,7 @@ module eje_dentado(){
     }
 
 module servo(){
-    %union(){
+    union(){
         difference(){
             color("white")
                 rotate([0,0,90])
@@ -64,7 +71,7 @@ module servo(){
            translate([-40,-25,0])
             cube(30,20,20,center=true);    
         }
-   %color("gray")
+   color("gray")
      rotate([0,0,90])
         translate([0,-0,2])
             import("./Stl/Futaba3003.stl",center = true); 
@@ -73,23 +80,22 @@ module servo(){
 
 module Amplificadora_servo_z(){
     union(){    
-    //PequeñaAmplificadora
-    //translate([27.5,10,84])
-      color("red")  
+    //PequeñaAmplificadora 
         translate([0,12,0])   
         rotate([90,70,0])
             gear (
                 mm_per_tooth    = modulo_transmision_amp, number_of_teeth =6,   thickness       = 12,   hole_diameter   = diam_eje_amplif,    twist           = 0,   teeth_to_hide   = 0,  pressure_angle  = 28,  clearance       = 0.1,  backlash        = 0.0  );
         
-      //GrandeAmplificadora          
-    //translate([27.5,0,84])     
+    //GrandeAmplificadora           
         rotate([90,32,0])
             gear (
-                mm_per_tooth    = modulo_transmision_vert, number_of_teeth =15,   thickness       =13,   hole_diameter   = diam_eje_amplif,    twist           = 0,   teeth_to_hide   = 0,  pressure_angle  = 28,  clearance       = 0.0,  backlash        = 0.0  );
+                mm_per_tooth    = modulo_transmision_vert, number_of_teeth =15,   thickness       =Ancho_amplif_grande,   hole_diameter   = diam_eje_amplif,    twist           = 0,   teeth_to_hide   = 0,  pressure_angle  = 28,  clearance       = 0.0,  backlash        = 0.0  );
     }    
 }    
 
 // Eje principal
+
+module Eje_Transmision(){
 difference(){
     union(){
         // Rueda dentada para permitir giro en alfa
@@ -103,8 +109,7 @@ difference(){
                                         w_helix = 0,   //angulo de los dientes
                                         D = 50,         //??
                                         clearance = -0.1,  // Hueco entre ruedas
-                                        center = true
-                                    ); 
+                                        center = true ); 
         // Tope del eje con <carrier>
             cylinder(h=altura_tope,d = Diam_eje_rotatorio+5,$fn=50,center=true);
         
@@ -115,13 +120,31 @@ center=true);
         // Plataforma superior para sujección del servo Z
         translate([0,0,(altura_tope/2)+altura_rueda])
             cylinder(h = (Altura_eje-altura_tope)/2-altura_rueda, d1 = Diam_eje_rotatorio, d2 = Diam_Plataforma_sup, center = true/false);
-            
-        translate([36.5,66,Altura_eje/2+12])
+        
+        // Servo
+        translate([36.5,66,Altura_eje/2+12.5])
         rotate([0,90,-90])
             servo();
-        translate([30,20,Altura_eje/2-Grosor_Plataforma_sup/2])
-            cube([55,60,Grosor_Plataforma_sup],center=true);
+            
+        // Plataforma para servo superior
+        difference(){
+            translate([30,20,Altura_eje/2-Grosor_Plataforma_sup/2])
+                cube([55,100,Grosor_Plataforma_sup],center=true);
+            
+            translate([46,14,12.5+Altura_eje/2])
+                rotate([90,-5,0])
+                cylinder(h=ancho_rueda_servo_sup+5,d=45,center=true);      
+        }
+         // Eje para Ruedas de Amplificacion     
 
+        difference(){
+            
+            translate([Amplif_Pos_X,-2-Ancho_amplif_grande/2-ancho_soporte_amplif/2,(Altura_eje/2)+(Altura_ejeAmp/2)])
+                cube([ancho_soporte_amplif,ancho_soporte_amplif,Altura_ejeAmp],center=true);
+            translate([Amplif_Pos_X,-Ancho_amplif_grande,32+Altura_eje/2])
+                rotate([90,0,0])
+               cylinder(d=diam_eje_amplif, h =100,center=true);
+        }
     }
     scale([1.04,1.04,1])
         eje_direccional();
@@ -132,20 +155,23 @@ center=true);
 d_Boca_Servo=22; //mm
 
 //Eje dentado para transmisión en Z
-translate([0,0,-14])
+translate([0,0,-12])
+render()
     eje_dentado();
 
 //Rueda servo en Z
 //Servo
 color("green")
-translate([46,14,60.5])     
+translate([46,14,12.5+Altura_eje/2])     
     rotate([90,-5,0])
+    render()
         gear (
-            mm_per_tooth    = modulo_transmision_amp, number_of_teeth =15,   thickness       = 9,   hole_diameter   = 3,    twist           = 0,   teeth_to_hide   = 0,  pressure_angle  = 28,  clearance       = 0.1,  backlash        = 0.0  );
+            mm_per_tooth    = modulo_transmision_amp, number_of_teeth =15,   thickness       = ancho_rueda_servo_sup,   hole_diameter   = 3,    twist           = 0,   teeth_to_hide   = 0,  pressure_angle  = 28,  clearance       = 0.1,  backlash        = 0.0  );
 
 // Sistema de engranajes
-translate([27.5,0,80])   
-Amplificadora_servo_z();  
+translate([Amplif_Pos_X,0,32+Altura_eje/2]) 
+    render()
+        Amplificadora_servo_z();  
             
 
 //Rueda acoplada a servo en alpha
@@ -167,3 +193,4 @@ Amplificadora_servo_z();
              translate([0,0,-4])
                 cylinder(h=8,d=d_Boca_Servo,center=true); 
         }
+ }

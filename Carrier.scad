@@ -5,8 +5,9 @@ Radio_eje_rueda=2;
 Dims_rueda=[12, 22 ,12] ;
 Dist_bar=40; //distancia de una varilla al centro
 Posicion_Poleas=[20,45,5];
-Diam_eje_rotatorio=15;
-
+Diam_eje_rotatorio=23;
+Posicion_ruedas=[Dist_bar,40,0];
+use <Eje_Transmision.scad>;
 
 // Módulos
 module mirror_XY(Pos=[10,10,0])
@@ -53,7 +54,7 @@ union(){
         cube([100,110,10],center=true);
         
         // Replicamos con respecto al medio un cubo con las dimensiones de la rueda
-        mirror_XY(Pos=[Dist_bar,40,0])
+        mirror_XY(Pos=Posicion_ruedas)
             cube(Dims_rueda,center=true);
         // Los ejes de las ruedas
         mirror_XY(Pos=[Dist_bar-10,40,0])
@@ -70,9 +71,15 @@ union(){
     mirror_XY(Pos=Posicion_Poleas)
         import("./Stl/Cabo_Hilos.stl");
     
-    color("blue")
-    translate([0,0,25])
-        import("./Stl/Eje_Transmision.stl");
+    // Añadir ruedas
+    color("green")
+    mirror_XY(Pos=Posicion_ruedas)
+    rotate([0,90,0])
+        import("./Stl/Wheel_carrier_v01.stl");
+    
+    translate([0,0,25.6])
+        rotate([0,0,-20])
+        Eje_Transmision();
  
    //rotate([0,0,90])
     translate([0,45,5])

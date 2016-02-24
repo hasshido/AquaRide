@@ -254,7 +254,7 @@ module Tool(m = 1, z = 10, x = 0, w = 20, clearance = 0)
 
 module cake_piece(m = 1, z = 10, x = 0, w = 20, clearance = 0)
 {
-	$fn = 100; 
+	$fn = 50; 
 	r_wk = m*z/2 + x; 
    p = m*PI; 
    dy = p/2*cos(w);  
