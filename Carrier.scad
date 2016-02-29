@@ -38,7 +38,7 @@ module servo(){
            translate([-40,-25,0])
             cube(30,20,20,center=true);    
         }
-   color("gray")
+   *color("gray")
      rotate([0,0,90])
         translate([0,-0,2])
             import("./Stl/Futaba3003.stl",center = true); 
@@ -72,12 +72,12 @@ union(){
         import("./Stl/Cabo_Hilos.stl");
     
     // Añadir ruedas
-    color("green")
+    *color("green")
     mirror_XY(Pos=Posicion_ruedas)
     rotate([0,90,0])
         import("./Stl/Wheel_carrier_v01.stl");
     
-    translate([0,0,25.6])
+    *translate([0,0,25.6])
         rotate([0,0,-20])
         Eje_Transmision();
  
@@ -86,7 +86,7 @@ union(){
         servo();
     
     
-    color("teal")
+    *color("teal")
     mirror([0,0,1])
     translate([-70,55,-50])
         import("./Stl/Eje_Transmision_rueda.stl",center = true);   

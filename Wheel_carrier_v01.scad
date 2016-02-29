@@ -9,7 +9,7 @@ angle_2 = 100;
 
 
 difference() {
-cylinder(r=10,h=11,center=true);
+cylinder(r=10,h=10,center=true);
 rotate_extrude()
     translate([bend_radius + radius_bar, 0, 0])
     circle(r=radius_bar);

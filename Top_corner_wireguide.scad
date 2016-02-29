@@ -30,7 +30,7 @@ module contenedor_motor(){
             translate([0,0,-25])
                 cube([50,50,50],center=true);
             // Hueco para NEMA17
-            %color("teal")
+            color("teal")
                 translate([0,0,0.01])
                     scale([1.02,1.02,1.01])
                         import("./Stl/NEMA17.stl");
@@ -67,7 +67,7 @@ union(){
                 import("./Stl/NEMA17.stl");
         difference(){
             translate([5,-30,25])
-                cylinder(d=10,h=6,center=true);
+                cylinder(d=12,h=6,center=true);
             translate([5,-30,25])
                 cylinder(d=7,h=6,center=true);
         }
