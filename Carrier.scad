@@ -7,26 +7,15 @@ Dist_bar=40; //distancia de una varilla al centro
 Posicion_Poleas=[20,45,5];
 Diam_eje_rotatorio=23;
 Posicion_ruedas=[Dist_bar,40,0];
+
 use <Eje_Transmision.scad>;
+use <Cabo_Hilos.scad>;
+use <Carrier_Wheel.scad>;
+use <Mirror.scad>;
 
-// Módulos
-module mirror_XY(Pos=[10,10,0])
- {
-    translate(Pos)
-        children();
-    
-    mirror([1,0,0])
-        translate(Pos)
-            children();
-    mirror([0,1,0])
-        translate(Pos)
-           children();
 
-    mirror([1,0,0])
-        mirror([0,1,0])
-            translate(Pos)
-                children();
-}
+Imprimir = false;
+
 
 module servo(){
     union(){
@@ -38,65 +27,58 @@ module servo(){
            translate([-40,-25,0])
             cube(30,20,20,center=true);    
         }
-   *color("gray")
+   color("gray")
      rotate([0,0,90])
         translate([0,-0,2])
             import("./Stl/Futaba3003.stl",center = true); 
     }
 }
 
-// Main code
+module Carrier(){
+    union(){        
+        difference(){           
+            cube([100,110,10],center=true);
+            
+            // Replicamos con respecto al medio un cubo con las dimensiones de la rueda
+            mirrorXY(Pos=Posicion_ruedas)
+                cube(Dims_rueda,center=true);
+            // Los ejes de las ruedas
+            mirrorXY(Pos=[Dist_bar-10,40,0])
+                rotate([0,90,0])
+                    cylinder(h=100,r=Radio_eje_rueda);
+            
+            // Hueco central
+            cylinder(h=30,d=Diam_eje_rotatorio,$fn=50,center=true);
+        }
+        // Añadir poleas SUJETO A CAMBIOS
+        color("orange")
+        mirrorXY(Pos=Posicion_Poleas)
+            Cabo_Hilos();
+        
+        // Añadir ruedas
+        color("green")
+        mirrorXY(Pos=Posicion_ruedas)
+        rotate([0,90,0])
+            Carrier_Wheel();
+        
+        // Añadir Eje_transmision
+        translate([0,0,25.6])
+            rotate([0,0,-20])
+            Eje_Transmision();
+        
+        // Añadir servo Alpha
+        translate([0,45,5])
+            servo();
 
-union(){
-    
-    difference(){
-        
-        cube([100,110,10],center=true);
-        
-        // Replicamos con respecto al medio un cubo con las dimensiones de la rueda
-        mirror_XY(Pos=Posicion_ruedas)
-            cube(Dims_rueda,center=true);
-        // Los ejes de las ruedas
-        mirror_XY(Pos=[Dist_bar-10,40,0])
-            rotate([0,90,0])
-                cylinder(h=100,r=Radio_eje_rueda);
-        
-        // Hueco central
-        cylinder(h=30,d=Diam_eje_rotatorio,$fn=50,center=true);
-        
-
+        // Añadir Rueda Servo Alpha
+        color("teal")
+        translate([-0,55,51])
+            //Módulo declarado en Eje_transmision.scad
+            Rueda_Servo_Alpha();    
     }
-    // Añadir poleas SUJETO A CAMBIOS
-    color("orange")
-    mirror_XY(Pos=Posicion_Poleas)
-        import("./Stl/Cabo_Hilos.stl");
-    
-    // Añadir ruedas
-    *color("green")
-    mirror_XY(Pos=Posicion_ruedas)
-    rotate([0,90,0])
-        import("./Stl/Wheel_carrier_v01.stl");
-    
-    *translate([0,0,25.6])
-        rotate([0,0,-20])
-        Eje_Transmision();
- 
-   //rotate([0,0,90])
-    translate([0,45,5])
-        servo();
-    
-    
-    *color("teal")
-    mirror([0,0,1])
-    translate([-70,55,-50])
-        import("./Stl/Eje_Transmision_rueda.stl",center = true);   
-    
-    
-    
 }
 
-
-
+Carrier();
 
 
 
