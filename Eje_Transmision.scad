@@ -25,6 +25,7 @@ Altura_Eje_Z_Dentado=Altura_Estructura_Central+250;
 Altura_Soporte_Amplificadoras=45;
 
 Ancho_Soporte_Amplificadoras=15;
+Ancho_Plataforma_Sup=85;
 Ancho_Rueda_Servo_Z=9;
 Ancho_Rueda_Amplificadora_Grande=13;
 Ancho_Rueda_Amplificadora_Pequena=12;
@@ -98,7 +99,7 @@ module Servo_Futaba_s3003(){
 }
 
 module EjeAmplificadoraGrande(){
-                cylinder(h=Ancho_Rueda_Amplificadora_Grande+Ancho_Rueda_Amplificadora_Pequena+Ancho_Soporte_Amplificadoras+8,d=Diam_Eje_Amplificadoras, $fn=40); 
+                cylinder(h=Ancho_Plataforma_Sup+15,d=Diam_Eje_Amplificadoras, $fn=40); 
 }
 
 module Amplificadora_servo_z(){
@@ -187,9 +188,9 @@ module Eje_Transmision(){
                 Servo_Futaba_s3003();
                 
             // Plataforma para servo superior
-            difference(){
+           % difference(){
                 translate([30,19,Altura_Estructura_Central/2-Grosor_Plataforma_sup/2])
-                    cube([55,85,Grosor_Plataforma_sup],center=true);
+                    cube([55,Ancho_Plataforma_Sup,Grosor_Plataforma_sup],center=true);
                 
                 translate([46,14,12.5+Altura_Estructura_Central/2])
                     rotate([90,-5,0])
@@ -207,8 +208,8 @@ module Eje_Transmision(){
             }
            // Estructura eje para Ruedas de Amplificacion EJE 2 
            difference(){     
-                translate([Posicion_X_Amplificadoras,60,(Altura_Estructura_Central/2)+(Altura_Soporte_Amplificadoras/2)])
-                    cube([Ancho_Soporte_Amplificadoras,Ancho_Soporte_Amplificadoras/                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ,Altura_Soporte_Amplificadoras],center=true);
+                translate([Posicion_X_Amplificadoras,63,(Altura_Estructura_Central/2)+(Altura_Soporte_Amplificadoras/2)-(Grosor_Plataforma_sup/2)])
+                    cube([Ancho_Soporte_Amplificadoras,Ancho_Soporte_Amplificadoras/4 ,Altura_Soporte_Amplificadoras+Grosor_Plataforma_sup],center=true);
                 translate([Posicion_X_Amplificadoras,-Ancho_Rueda_Amplificadora_Grande,32+Altura_Estructura_Central/2])
                     rotate([90,0,0])
                    cylinder(d=Diam_Eje_Amplificadoras, h =200,center=true);
