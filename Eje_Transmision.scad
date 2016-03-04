@@ -2,7 +2,7 @@ use<gears.scad>;
 use<publicDomainGear.scad>;
 
 
-Imprimir=true;
+Imprimir=false;
 
 EngranajeZ_Num_Dientes=9;
 EngranajeZ_Grosor=8;
@@ -21,7 +21,7 @@ Grosor_Plataforma_sup=10;
 
 Altura_Tope_Eje_Z=42; // Establecer en base al tamaño del motor
 Altura_Estructura_Central=100;
-Altura_Eje_Z_Dentado=270;
+Altura_Eje_Z_Dentado=Altura_Estructura_Central+250;
 Altura_Soporte_Amplificadoras=45;
 
 Ancho_Soporte_Amplificadoras=15;
@@ -37,25 +37,46 @@ Margen_Holgura_Rotacion=2;
 
 module Eje_Z(){
     difference(){        
-        cylinder(h=Altura_Estructura_Central+Altura_Eje_Z_Dentado,d = Diam_eje_rotatorio-Margen_Holgura_Rotacion-Ancho_Tubo_Eje_Z,$fn=50,center=true);
+        cylinder(h=Altura_Eje_Z_Dentado,d = Diam_eje_rotatorio-Margen_Holgura_Rotacion-Ancho_Tubo_Eje_Z,$fn=50,center=true);
         translate([Diam_eje_rotatorio-Diam_eje_rotatorio/3.5,0,0])
-            cube([Diam_eje_rotatorio,Diam_eje_rotatorio,Altura_Estructura_Central+Altura_Eje_Z_Dentado],center=true);
+            cube([Diam_eje_rotatorio,Diam_eje_rotatorio,Altura_Eje_Z_Dentado],center=true);
     }
 }
 
 module Eje_Z_dentado(){
-        intersection(){
-            Eje_Z();
-        
-            translate([3,0,Altura_Eje_Z_Dentado])
-            rotate([0,90,-90])
-                rack (mm_per_tooth=(Modulo_transmision_Servo_Z), 
-                number_of_teeth=Altura_Eje_Z_Dentado*2/Modulo_transmision_Servo_Z,
-                thickness=Diam_eje_rotatorio, height=20,
-                pressure_angle =0,
-                backlash=0.1 );
-        }
-    }
+                if(Imprimir==false){
+            
+                  intersection(){
+               Eje_Z();
+            
+                translate([3,0,Altura_Eje_Z_Dentado])
+                rotate([0,90,-90])
+                    rack (mm_per_tooth=(Modulo_transmision_Servo_Z), 
+                    number_of_teeth=Altura_Eje_Z_Dentado*2/Modulo_transmision_Servo_Z,
+                    thickness=Diam_eje_rotatorio, height=20,
+                    pressure_angle =0,
+                    backlash=0.1 );
+                
+            }
+            
+     } else
+     {
+    
+         //rotate([90,0,0])
+          difference(){
+          //
+             // Eje_Z_dentado();   
+          difference()  {
+            translate([0,0,Altura_Eje_Z_Dentado/2])
+            cube([Diam_eje_rotatorio,Diam_eje_rotatorio,Altura_Eje_Z_Dentado],center=true);
+            cube([Diam_eje_rotatorio/3,Diam_eje_rotatorio/3,Diam_eje_rotatorio*1.5+1],center=true);  
+          }
+          
+          
+          }
+      }
+            
+     }
 
 module Servo_Futaba_s3003(){
     union(){
@@ -174,7 +195,7 @@ module Eje_Transmision(){
                     rotate([90,-5,0])
                     cylinder(h=Ancho_Rueda_Servo_Z+5,d=45,center=true);      
             }
-             // Estructura eje para Ruedas de Amplificacion     
+             // Estructura eje para Ruedas de Amplificacion EJE 1 
             difference(){
                 
                 
@@ -183,6 +204,14 @@ module Eje_Transmision(){
                 translate([Posicion_X_Amplificadoras,-Ancho_Rueda_Amplificadora_Grande,32+Altura_Estructura_Central/2])
                     rotate([90,0,0])
                    cylinder(d=Diam_Eje_Amplificadoras, h =100,center=true);
+            }
+           // Estructura eje para Ruedas de Amplificacion EJE 2 
+           difference(){     
+                translate([Posicion_X_Amplificadoras,60,(Altura_Estructura_Central/2)+(Altura_Soporte_Amplificadoras/2)])
+                    cube([Ancho_Soporte_Amplificadoras,Ancho_Soporte_Amplificadoras/                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ,Altura_Soporte_Amplificadoras],center=true);
+                translate([Posicion_X_Amplificadoras,-Ancho_Rueda_Amplificadora_Grande,32+Altura_Estructura_Central/2])
+                    rotate([90,0,0])
+                   cylinder(d=Diam_Eje_Amplificadoras, h =200,center=true);
             }
         }
             
@@ -220,7 +249,7 @@ if(Imprimir==false){
             Eje_Transmision();
             Pasadizo_Alimentacion(pieza="hueco");
         }
-        %Pasadizo_Alimentacion(pieza="tapa");
+        Pasadizo_Alimentacion(pieza="tapa");
 
     }
  
@@ -248,25 +277,26 @@ if(Imprimir==false){
     translate([60,0,25])    
     rotate([0,180,0])
             Rueda_Servo_Alpha();
-} else {
+}
+else {
     
-     difference(){
+     *difference(){
             Eje_Transmision();
             Pasadizo_Alimentacion(pieza="hueco");
         }
  
-    *rotate([90,0,0])
-            Eje_Z_dentado();
+   *Eje_Z_dentado();   
+
 
     *Rueda_Servo_Z();
     
-    *rotate([90,0,0])
-    Amplificadora_servo_z();           
+    rotate([90,0,0])
+    *Amplificadora_servo_z();           
 
-    *rotate([0,180,0])
-    Rueda_Servo_Alpha();
-    
-    *EjeAmplificadoraGrande();
+    rotate([0,180,0])
+    *Rueda_Servo_Alpha();
+    scale([0.7,0.7,1])
+    EjeAmplificadoraGrande();
     
    *Pasadizo_Alimentacion(pieza="tapa");
 
@@ -276,6 +306,6 @@ if(Imprimir==false){
  
  
  
- 
- 
- 
+     
+     
+     
