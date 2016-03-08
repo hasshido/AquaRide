@@ -1,8 +1,9 @@
 use<gears.scad>;
+use<Mirror.scad>;
 use<publicDomainGear.scad>;
 
 
-Imprimir=false;
+Imprimir=true;
 
 EngranajeZ_Num_Dientes=9;
 EngranajeZ_Grosor=8;
@@ -22,7 +23,8 @@ Grosor_Plataforma_sup=10;
 Altura_Tope_Eje_Z=42; // Establecer en base al tamaño del motor
 Altura_Estructura_Central=100;
 Altura_Eje_Z_Dentado=Altura_Estructura_Central+250;
-Altura_Soporte_Amplificadoras=45;
+Altura_Soporte_Amplificadoras=48;
+
 
 Ancho_Soporte_Amplificadoras=15;
 Ancho_Plataforma_Sup=85;
@@ -31,6 +33,8 @@ Ancho_Rueda_Amplificadora_Grande=13;
 Ancho_Rueda_Amplificadora_Pequena=12;
 Ancho_Tubo_Eje_Z=4;
 Ancho_pasadizo_alim=4;
+
+Altura_Eje_Amplificadoras=Ancho_Plataforma_Sup+15;
 
 
 Posicion_X_Amplificadoras=27.5;
@@ -99,8 +103,31 @@ module Servo_Futaba_s3003(){
 }
 
 module EjeAmplificadoraGrande(){
-                cylinder(h=Ancho_Plataforma_Sup+15,d=Diam_Eje_Amplificadoras, $fn=40); 
+                cylinder(h=Altura_Eje_Amplificadoras,d=Diam_Eje_Amplificadoras, $fn=40,center=true); 
 }
+module Soporte_Eje_Amplificadora(){
+    difference(){
+                    union(){
+                        cube([Ancho_Soporte_Amplificadoras,Ancho_Soporte_Amplificadoras,Altura_Soporte_Amplificadoras],center=true);
+                         translate([0,(Ancho_Soporte_Amplificadoras+Ancho_Rueda_Amplificadora_Grande)/2,3*Altura_Soporte_Amplificadoras/4])
+                         cube([Ancho_Soporte_Amplificadoras,2*Ancho_Soporte_Amplificadoras+Ancho_Rueda_Amplificadora_Grande,Altura_Soporte_Amplificadoras/2],center=true);     
+                    }
+        // Hueco para el eje
+        translate([0,Altura_Eje_Amplificadoras/2-Ancho_Soporte_Amplificadoras,32-Altura_Soporte_Amplificadoras/2])
+        rotate([90,0,0])
+        EjeAmplificadoraGrande();
+                    
+         // Hueco para la rueda
+                    
+        translate([0,
+                    Ancho_Soporte_Amplificadoras/2+Ancho_Rueda_Amplificadora_Grande/2,
+                    32-Altura_Soporte_Amplificadoras/2])
+        rotate([90,-5,0])
+        cylinder(h=Ancho_Rueda_Amplificadora_Grande+2,d=60,center=true);               
+                    
+    }
+                
+  }
 
 module Amplificadora_servo_z(){
     union(){    
@@ -116,7 +143,7 @@ module Amplificadora_servo_z(){
                 mm_per_tooth    = Modulo_transmision_Servo_Z, number_of_teeth =15,   thickness       =Ancho_Rueda_Amplificadora_Grande,   hole_diameter   = Diam_Eje_Amplificadoras,    twist           = 0,   teeth_to_hide   = 0,  pressure_angle  = 28,  clearance       = 0.0,  backlash        = 0.0  );
         
         if(Imprimir==false){
-            translate([0,Ancho_Rueda_Amplificadora_Grande/2 + Ancho_Rueda_Amplificadora_Pequena,0])
+            translate([0,Altura_Eje_Amplificadoras/2-2*Ancho_Soporte_Amplificadoras,0])
             rotate([90,0,0])
                 EjeAmplificadoraGrande();
             
@@ -179,6 +206,7 @@ module Eje_Transmision(){
     center=true);
             
             // Plataforma superior para sujección del servo Z
+            
             translate([0,0,(Altura_Tope_Eje_Z/2)+EngranajeZ_Grosor])
                cylinder(h = (Altura_Estructura_Central-Altura_Tope_Eje_Z)/2-EngranajeZ_Grosor, d1 = Diam_tope, d2 = Diam_Plataforma_sup, center = true/false);
             
@@ -188,31 +216,30 @@ module Eje_Transmision(){
                 Servo_Futaba_s3003();
                 
             // Plataforma para servo superior
-           % difference(){
+            difference(){
                 translate([30,19,Altura_Estructura_Central/2-Grosor_Plataforma_sup/2])
                     cube([55,Ancho_Plataforma_Sup,Grosor_Plataforma_sup],center=true);
                 
+                // Hueco para rueda servo Z
                 translate([46,14,12.5+Altura_Estructura_Central/2])
                     rotate([90,-5,0])
-                    cylinder(h=Ancho_Rueda_Servo_Z+5,d=45,center=true);      
+                    cylinder(h=Ancho_Rueda_Servo_Z+2,d=55,center=true);      
             }
+            
+
              // Estructura eje para Ruedas de Amplificacion EJE 1 
-            difference(){
-                
-                
-                translate([Posicion_X_Amplificadoras,-2-Ancho_Rueda_Amplificadora_Grande/2-Ancho_Soporte_Amplificadoras/2,(Altura_Estructura_Central/2)+(Altura_Soporte_Amplificadoras/2)])
-                    cube([Ancho_Soporte_Amplificadoras,Ancho_Soporte_Amplificadoras,Altura_Soporte_Amplificadoras],center=true);
-                translate([Posicion_X_Amplificadoras,-Ancho_Rueda_Amplificadora_Grande,32+Altura_Estructura_Central/2])
-                    rotate([90,0,0])
-                   cylinder(d=Diam_Eje_Amplificadoras, h =100,center=true);
-            }
+
+                    // Cuerpo del soporte para el EJE1
+                    translate([Posicion_X_Amplificadoras,-Ancho_Rueda_Amplificadora_Grande/2-Ancho_Soporte_Amplificadoras/2,(Altura_Estructura_Central/2)+(Altura_Soporte_Amplificadoras/2)])
+                    Soporte_Eje_Amplificadora();
+
            // Estructura eje para Ruedas de Amplificacion EJE 2 
            difference(){     
                 translate([Posicion_X_Amplificadoras,63,(Altura_Estructura_Central/2)+(Altura_Soporte_Amplificadoras/2)-(Grosor_Plataforma_sup/2)])
-                    cube([Ancho_Soporte_Amplificadoras,Ancho_Soporte_Amplificadoras/4 ,Altura_Soporte_Amplificadoras+Grosor_Plataforma_sup],center=true);
+                    cube([Ancho_Soporte_Amplificadoras,Ancho_Soporte_Amplificadoras/3 ,Altura_Soporte_Amplificadoras+Grosor_Plataforma_sup],center=true);
                 translate([Posicion_X_Amplificadoras,-Ancho_Rueda_Amplificadora_Grande,32+Altura_Estructura_Central/2])
                     rotate([90,0,0])
-                   cylinder(d=Diam_Eje_Amplificadoras, h =200,center=true);
+                    EjeAmplificadoraGrande();
             }
         }
             
@@ -281,7 +308,7 @@ if(Imprimir==false){
 }
 else {
     
-     *difference(){
+     difference(){
             Eje_Transmision();
             Pasadizo_Alimentacion(pieza="hueco");
         }
@@ -297,7 +324,7 @@ else {
     rotate([0,180,0])
     *Rueda_Servo_Alpha();
     scale([0.7,0.7,1])
-    EjeAmplificadoraGrande();
+    *EjeAmplificadoraGrande();
     
    *Pasadizo_Alimentacion(pieza="tapa");
 
