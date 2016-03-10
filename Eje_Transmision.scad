@@ -3,7 +3,7 @@ use<Mirror.scad>;
 use<publicDomainGear.scad>;
 
 
-Imprimir=true;
+Imprimir=false;
 
 EngranajeZ_Num_Dientes=9;
 EngranajeZ_Grosor=8;
@@ -32,28 +32,30 @@ Ancho_Rueda_Servo_Z=9;
 Ancho_Rueda_Amplificadora_Grande=13;
 Ancho_Rueda_Amplificadora_Pequena=12;
 Ancho_Tubo_Eje_Z=4;
+Ancho_Eje_Z=4;
 Ancho_pasadizo_alim=4;
 
 Altura_Eje_Amplificadoras=Ancho_Plataforma_Sup+15;
 
-
 Posicion_X_Amplificadoras=27.5;
 Margen_Holgura_Rotacion=2;
 
+Diam_eje_Z_dentado=Diam_eje_rotatorio-Margen_Holgura_Rotacion-Ancho_Tubo_Eje_Z;
+
 module Eje_Z(){
-    difference(){        
-        cylinder(h=Altura_Eje_Z_Dentado,d = Diam_eje_rotatorio-Margen_Holgura_Rotacion-Ancho_Tubo_Eje_Z,$fn=50,center=true);
+   difference(){        
+        cylinder(h=Altura_Eje_Z_Dentado,d = Diam_eje_Z_dentado,$fn=50,center=true);
         translate([Diam_eje_rotatorio-Diam_eje_rotatorio/3.5,0,0])
             cube([Diam_eje_rotatorio,Diam_eje_rotatorio,Altura_Eje_Z_Dentado],center=true);
     }
 }
 
-module Eje_Z_dentado(){
-                if(Imprimir==false){
-            
-                  intersection(){
-               Eje_Z();
-            
+module Eje_Z_dentado(Print=false){
+    if(Print == false){
+        difference(){
+            intersection(){
+                Eje_Z();
+                
                 translate([3,0,Altura_Eje_Z_Dentado])
                 rotate([0,90,-90])
                     rack (mm_per_tooth=(Modulo_transmision_Servo_Z), 
@@ -64,24 +66,37 @@ module Eje_Z_dentado(){
                 
             }
             
-     } else
-     {
-    
-         //rotate([90,0,0])
-          difference(){
-          //
-             // Eje_Z_dentado();   
-          difference()  {
-            translate([0,0,Altura_Eje_Z_Dentado/2])
-            cube([Diam_eje_rotatorio,Diam_eje_rotatorio,Altura_Eje_Z_Dentado],center=true);
-            cube([Diam_eje_rotatorio/3,Diam_eje_rotatorio/3,Diam_eje_rotatorio*1.5+1],center=true);  
-          }
-          
-          
-          }
-      }
-            
-     }
+            // Medio cilindro para "ahuecar" el eje
+            difference(){
+                cylinder(h=Altura_Eje_Z_Dentado+1,d=Diam_eje_Z_dentado-Ancho_Eje_Z,center=true);
+                
+                translate([Diam_eje_Z_dentado/2,0,0])
+                cube([Diam_eje_Z_dentado,Diam_eje_Z_dentado,Altura_Eje_Z_Dentado+1],center=true);
+            }
+        }
+
+    } 
+    else{
+        // Partir la pieza por la mitad y ponerla una al lado de la otra para facilitar impresión
+        difference(){
+            rotate([90,0,0])      
+                Eje_Z_dentado(Print=false);
+            translate([0,Altura_Eje_Z_Dentado/2,0])
+                cube([Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado],center=true);
+        }
+        
+        // Segunda mitad de la pieza, puesta al lado de la primera
+        mirror([0,1,0])
+        translate([Diam_eje_Z_dentado*2,0,0])
+            intersection(){
+                rotate([90,0,0])      
+                    Eje_Z_dentado(Print=false);
+                translate([0,Altura_Eje_Z_Dentado/2,0])
+                    cube([Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado],center=true);   
+                
+            }
+    }  
+}
 
 module Servo_Futaba_s3003(){
     union(){
@@ -123,7 +138,7 @@ module Soporte_Eje_Amplificadora(){
                     Ancho_Soporte_Amplificadoras/2+Ancho_Rueda_Amplificadora_Grande/2,
                     32-Altura_Soporte_Amplificadoras/2])
         rotate([90,-5,0])
-        cylinder(h=Ancho_Rueda_Amplificadora_Grande+2,d=60,center=true);               
+        cylinder(h=Ancho_Rueda_Amplificadora_Grande+2,d=63,center=true);               
                     
     }
                 
@@ -180,7 +195,7 @@ module Rueda_Servo_Alpha(){
     
 }
 
-module Eje_Transmision(){
+module Eje_Transmision_Core(){
     
     difference(){
      
@@ -262,7 +277,7 @@ module Pasadizo_Alimentacion(pieza="tapa"){
     }
     if  (pieza=="tapa"){   
         intersection(){
-            Eje_Transmision();
+            Eje_Transmision_Core();
             translate([0,2,3])
             Pasadizo_Alimentacion(pieza="hueco");
         }
@@ -270,68 +285,84 @@ module Pasadizo_Alimentacion(pieza="tapa"){
  
 }
     
-if(Imprimir==false){         
+module Cilindro_Sujeccion_Vertical(){
+    difference(){
+            cylinder(d=Diam_eje_rotatorio+70,h=10,center=true);
+        
+            cylinder(d=Diam_eje_rotatorio-Margen_Holgura_Rotacion,h=20,center=true);
+    } 
+}
 
-    union(){
-        difference(){
-            Eje_Transmision();
-            Pasadizo_Alimentacion(pieza="hueco");
+module Eje_Transmision(){
+    if(Imprimir==false){         
+
+        union(){
+            difference(){
+                Eje_Transmision_Core();
+                Pasadizo_Alimentacion(pieza="hueco");
+            }
+            Pasadizo_Alimentacion(pieza="tapa");
+
         }
-        Pasadizo_Alimentacion(pieza="tapa");
-
-    }
- 
-    //Eje dentado para transmisión en Z
-        color("yellow")
-        translate([0,0,-12])
-        render()
-    Eje_Z_dentado();
-
-    //Rueda servo en Z
-    color("green")
-        translate([46,14,12.5+Altura_Estructura_Central/2])     
-        rotate([90,-5,0])
-        render()
-            Rueda_Servo_Z();
-
-    // Sistema de engranajes
-      color("orange")
-        translate([Posicion_X_Amplificadoras,0,32+Altura_Estructura_Central/2]) 
-         render()
-                Amplificadora_servo_z();           
-
      
-    //Rueda acoplada a servo en alpha
-    translate([60,0,25])    
-    rotate([0,180,0])
-            Rueda_Servo_Alpha();
+        //Eje dentado para transmisión en Z
+            color("yellow")
+            translate([0,0,-12])
+            render()
+        Eje_Z_dentado();
+
+        //Rueda servo en Z
+        color("green")
+            translate([46,14,12.5+Altura_Estructura_Central/2])     
+            rotate([90,-5,0])
+            render()
+                Rueda_Servo_Z();
+
+        // Sistema de engranajes
+          color("orange")
+            translate([Posicion_X_Amplificadoras,0,32+Altura_Estructura_Central/2]) 
+             render()
+                    Amplificadora_servo_z();           
+
+         
+        //Rueda acoplada a servo en alpha
+        translate([60,0,25])    
+        rotate([0,180,0])
+                Rueda_Servo_Alpha();
+                
+        //Rueda para estabilizar ejeZ
+        translate([0,0,-40])
+        Cilindro_Sujeccion_Vertical();
+    }
+    else {
+        
+         *difference(){
+                Eje_Transmision_Core();
+                Pasadizo_Alimentacion(pieza="hueco");
+            }
+     
+       *Eje_Z_dentado(Print=true);   
+
+
+        *Rueda_Servo_Z();
+        
+        rotate([90,0,0])
+        *Amplificadora_servo_z();           
+
+        rotate([0,180,0])
+        *Rueda_Servo_Alpha();
+        scale([0.7,0.7,1])
+        *EjeAmplificadoraGrande();
+        
+       *Pasadizo_Alimentacion(pieza="tapa");
+            
+        Cilindro_Sujeccion_Vertical();
+
+        
+    }
 }
-else {
-    
-     difference(){
-            Eje_Transmision();
-            Pasadizo_Alimentacion(pieza="hueco");
-        }
- 
-   *Eje_Z_dentado();   
 
-
-    *Rueda_Servo_Z();
-    
-    rotate([90,0,0])
-    *Amplificadora_servo_z();           
-
-    rotate([0,180,0])
-    *Rueda_Servo_Alpha();
-    scale([0.7,0.7,1])
-    *EjeAmplificadoraGrande();
-    
-   *Pasadizo_Alimentacion(pieza="tapa");
-
-    
-}
-
- 
+ Eje_Transmision();
  
  
      
