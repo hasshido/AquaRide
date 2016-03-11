@@ -3,7 +3,7 @@ use<Mirror.scad>;
 use<publicDomainGear.scad>;
 
 
-Imprimir=false;
+Imprimir=true;
 
 EngranajeZ_Num_Dientes=9;
 EngranajeZ_Grosor=8;
@@ -81,12 +81,12 @@ module Eje_Z_dentado(Print=false){
         difference(){
             rotate([90,0,0])      
                 Eje_Z_dentado(Print=false);
-            translate([0,Altura_Eje_Z_Dentado/2,0])
+            translate([0,Altura_Eje_Z_Dentado/4,0])
                 cube([Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado],center=true);
         }
         
         // Segunda mitad de la pieza, puesta al lado de la primera
-        mirror([0,1,0])
+        *mirror([0,1,0])
         translate([Diam_eje_Z_dentado*2,0,0])
             intersection(){
                 rotate([90,0,0])      
@@ -341,7 +341,8 @@ module Eje_Transmision(){
                 Pasadizo_Alimentacion(pieza="hueco");
             }
      
-       *Eje_Z_dentado(Print=true);   
+       scale([0.95,0.95,1])
+            Eje_Z_dentado(Print=true);   
 
 
         *Rueda_Servo_Z();
@@ -356,7 +357,7 @@ module Eje_Transmision(){
         
        *Pasadizo_Alimentacion(pieza="tapa");
             
-        Cilindro_Sujeccion_Vertical();
+        *Cilindro_Sujeccion_Vertical();
 
         
     }
