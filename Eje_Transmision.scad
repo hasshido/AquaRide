@@ -34,6 +34,7 @@ Ancho_Rueda_Amplificadora_Pequena=12;
 Ancho_Tubo_Eje_Z=4;
 Ancho_Eje_Z=4;
 Ancho_pasadizo_alim=4;
+Ancho_AlineadorZ=10;
 
 Altura_Eje_Amplificadoras=Ancho_Plataforma_Sup+15;
 
@@ -81,12 +82,12 @@ module Eje_Z_dentado(Print=false){
         difference(){
             rotate([90,0,0])      
                 Eje_Z_dentado(Print=false);
-            translate([0,Altura_Eje_Z_Dentado/4,0])
+            translate([0,Altura_Eje_Z_Dentado/2,0])
                 cube([Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado],center=true);
         }
         
         // Segunda mitad de la pieza, puesta al lado de la primera
-        *mirror([0,1,0])
+        mirror([0,1,0])
         translate([Diam_eje_Z_dentado*2,0,0])
             intersection(){
                 rotate([90,0,0])      
@@ -242,11 +243,9 @@ module Eje_Transmision_Core(){
             }
             
 
-             // Estructura eje para Ruedas de Amplificacion EJE 1 
-
-                    // Cuerpo del soporte para el EJE1
-                    translate([Posicion_X_Amplificadoras,-Ancho_Rueda_Amplificadora_Grande/2-Ancho_Soporte_Amplificadoras/2,(Altura_Estructura_Central/2)+(Altura_Soporte_Amplificadoras/2)])
-                    Soporte_Eje_Amplificadora();
+            // Cuerpo del soporte para el EJE1
+            translate([Posicion_X_Amplificadoras,-Ancho_Rueda_Amplificadora_Grande/2-Ancho_Soporte_Amplificadoras/2,(Altura_Estructura_Central/2)+(Altura_Soporte_Amplificadoras/2)])
+            Soporte_Eje_Amplificadora();
 
            // Estructura eje para Ruedas de Amplificacion EJE 2 
            difference(){     
@@ -256,6 +255,12 @@ module Eje_Transmision_Core(){
                     rotate([90,0,0])
                     EjeAmplificadoraGrande();
             }
+            
+            
+            // Alineador EjeZ
+           color("teal")
+           translate([-Diam_eje_Z_dentado/2-Ancho_AlineadorZ/2+4,0,-1+(Altura_Estructura_Central/2)+(Altura_Soporte_Amplificadoras/2)])
+            cube([Ancho_AlineadorZ,Ancho_AlineadorZ,Altura_Soporte_Amplificadoras],center=true);                                                                                                    
         }
             
            
@@ -287,9 +292,9 @@ module Pasadizo_Alimentacion(pieza="tapa"){
     
 module Cilindro_Sujeccion_Vertical(){
     difference(){
-            cylinder(d=Diam_eje_rotatorio+70,h=10,center=true);
+            cylinder(d=Diam_eje_rotatorio+50,h=7,center=true);
         
-            cylinder(d=Diam_eje_rotatorio-Margen_Holgura_Rotacion,h=20,center=true);
+            cylinder(d=Diam_eje_rotatorio-Margen_Holgura_Rotacion+1,h=20,center=true);
     } 
 }
 
@@ -336,12 +341,12 @@ module Eje_Transmision(){
     }
     else {
         
-         *difference(){
+       *difference(){
                 Eje_Transmision_Core();
                 Pasadizo_Alimentacion(pieza="hueco");
             }
      
-       scale([0.95,0.95,1])
+       scale([0.9,1,0.9])
             Eje_Z_dentado(Print=true);   
 
 
