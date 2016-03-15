@@ -3,7 +3,7 @@ use<Mirror.scad>;
 use<publicDomainGear.scad>;
 
 
-Imprimir=true;
+Imprimir=false;
 
 EngranajeZ_Num_Dientes=9;
 EngranajeZ_Grosor=8;
@@ -346,7 +346,7 @@ module Eje_Transmision(){
                 Pasadizo_Alimentacion(pieza="hueco");
             }
      
-       scale([0.9,1,0.9])
+       *scale([0.9,1,0.9])
             Eje_Z_dentado(Print=true);   
 
 
@@ -357,8 +357,9 @@ module Eje_Transmision(){
 
         rotate([0,180,0])
         *Rueda_Servo_Alpha();
+            
         scale([0.7,0.7,1])
-        *EjeAmplificadoraGrande();
+        EjeAmplificadoraGrande();
         
        *Pasadizo_Alimentacion(pieza="tapa");
             

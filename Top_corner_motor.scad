@@ -22,13 +22,17 @@ difference(){
     translate([0,0,-25])
         cube([50,50,50],center=true);
     // Hueco para NEMA17
-    %color("teal")
+    color("teal")
     translate([0,0,0.01])
     scale([1.02,1.02,1.01])
         import("./Stl/NEMA17.stl");
     // Elimina varas NEMA17
-    translate([0,0,-50]);
-        cube([36,36,94],center=true);    
+    translate([0,0,-22])
+        cube([36,36,50],center=true);
+    
+    //Hueco para la alimentación
+    translate([0,-25,-39])
+        cube([15,10,15],center=true);
     }
 }
 
