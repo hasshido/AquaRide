@@ -4,11 +4,11 @@ use<publicDomainGear.scad>;
 
 $fn=20;
 
-radio_probe=10;
+radio_probe=11;
 length_section=10;
 
 
-separation=5*pow(sin(180*$t),2); // Se puede animar!!
+separation=5; // Se puede animar!!
 distance_sections=separation+length_section;
 number_parts=5;
 radio_cable=2;
@@ -16,8 +16,28 @@ ancho_electrodo=5;
 grosor_electrodo=2;
 grosor_separacion_vertical=1;
 
+altura_conector=20;
+ancho_conector=10;
+anchura_conector_pole=5;
+
+module probe_connector(tube=false){
+    
+        if (tube==true)
+    {
+            translate([0,0,altura_conector/2])
+    cube([anchura_conector_pole,anchura_conector_pole,altura_conector],center=true);
+    } else{
+    translate([0,0,altura_conector/2])
+    cube([anchura_conector_pole,anchura_conector_pole,altura_conector],center=true);
+    
+    translate([0,0,altura_conector+ancho_conector/2])
+    cube([ancho_conector,ancho_conector,ancho_conector],center=true);
+    }
+
+}
 
 module probe(){
+   
 difference(){
     union(){
     translate([0,-(distance_sections*(number_parts-1))/2,0])
@@ -60,5 +80,14 @@ difference(){
 }
 }
 
+
+
+
+
+
+
+
 probe();
+translate([0,0,radio_probe/2])
+    probe_connector();
     

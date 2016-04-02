@@ -1,9 +1,10 @@
 use<gears.scad>;
 use<Mirror.scad>;
 use<publicDomainGear.scad>;
+use<Probe.scad>;
 
 
-Imprimir=false;
+Imprimir=true;
 
 EngranajeZ_Num_Dientes=9;
 EngranajeZ_Grosor=8;
@@ -44,37 +45,53 @@ Margen_Holgura_Rotacion=2;
 Diam_eje_Z_dentado=Diam_eje_rotatorio-Margen_Holgura_Rotacion-Ancho_Tubo_Eje_Z;
 
 module Eje_Z(){
-   difference(){        
-        cylinder(h=Altura_Eje_Z_Dentado,d = Diam_eje_Z_dentado,$fn=50,center=true);
-        translate([Diam_eje_rotatorio-Diam_eje_rotatorio/3.5,0,0])
-            cube([Diam_eje_rotatorio,Diam_eje_rotatorio,Altura_Eje_Z_Dentado],center=true);
-    }
+       difference(){        
+            cylinder(h=Altura_Eje_Z_Dentado,d = Diam_eje_Z_dentado,$fn=50,center=true);
+            translate([Diam_eje_rotatorio-Diam_eje_rotatorio/3.5,0,0])
+                cube([Diam_eje_rotatorio,Diam_eje_rotatorio,Altura_Eje_Z_Dentado],center=true);
+        }
+
 }
 
 module Eje_Z_dentado(Print=false){
     if(Print == false){
         difference(){
-            intersection(){
-                Eje_Z();
-                
-                translate([3,0,Altura_Eje_Z_Dentado])
-                rotate([0,90,-90])
-                    rack (mm_per_tooth=(Modulo_transmision_Servo_Z), 
-                    number_of_teeth=Altura_Eje_Z_Dentado*2/Modulo_transmision_Servo_Z,
-                    thickness=Diam_eje_rotatorio, height=20,
-                    pressure_angle =0,
-                    backlash=0.1 );
-                
+            union(){
+                intersection(){
+                    Eje_Z();
+                    
+                    translate([3,0,Altura_Eje_Z_Dentado])
+                    rotate([0,90,-90])
+                        rack (mm_per_tooth=(Modulo_transmision_Servo_Z), 
+                        number_of_teeth=Altura_Eje_Z_Dentado*2/Modulo_transmision_Servo_Z,
+                        thickness=Diam_eje_rotatorio, height=20,
+                        pressure_angle =0,
+                        backlash=0.1 );
+                    
+                }
+                                
+                    difference(){
+                    translate([5,0,-Altura_Eje_Z_Dentado/2-15/2])    
+                    cube([25,15,15],center = true);        
+                    translate([11,0,-Altura_Eje_Z_Dentado/2-29])
+                    probe_connector();
+
+                    scale([1.5,1,1])    
+                    translate([10,0,-Altura_Eje_Z_Dentado/2-19])   
+                    probe_connector(tube=true);
+                            
+                    }  
             }
             
             // Medio cilindro para "ahuecar" el eje
             difference(){
-                cylinder(h=Altura_Eje_Z_Dentado+1,d=Diam_eje_Z_dentado-Ancho_Eje_Z,center=true);
+                cylinder(h=Altura_Eje_Z_Dentado+50,d=Diam_eje_Z_dentado-Ancho_Eje_Z,center=true);
                 
                 translate([Diam_eje_Z_dentado/2,0,0])
-                cube([Diam_eje_Z_dentado,Diam_eje_Z_dentado,Altura_Eje_Z_Dentado+1],center=true);
+                cube([Diam_eje_Z_dentado,Diam_eje_Z_dentado,Altura_Eje_Z_Dentado+50],center=true);
             }
         }
+
 
     } 
     else{
@@ -224,7 +241,7 @@ module Eje_Transmision_Core(){
             // Plataforma superior para sujección del servo Z
             
             translate([0,0,(Altura_Tope_Eje_Z/2)+EngranajeZ_Grosor])
-               cylinder(h = (Altura_Estructura_Central-Altura_Tope_Eje_Z)/2-EngranajeZ_Grosor, d1 = Diam_tope, d2 = Diam_Plataforma_sup, center = true/false);
+               cylinder(h = (Altura_Estructura_Central-Altura_Tope_Eje_Z)/2-5EngranajeZ_Grosor, d1 = Diam_tope, d2 = Diam_Plataforma_sup, center = true/false);
             
             // Servo
             translate([36.5,62,Altura_Estructura_Central/2+12.5])
@@ -346,7 +363,7 @@ module Eje_Transmision(){
                 Pasadizo_Alimentacion(pieza="hueco");
             }
      
-       *scale([0.9,1,0.9])
+       scale([0.9,1,0.9])
             Eje_Z_dentado(Print=true);   
 
 
@@ -359,7 +376,7 @@ module Eje_Transmision(){
         *Rueda_Servo_Alpha();
             
         scale([0.7,0.7,1])
-        EjeAmplificadoraGrande();
+        *EjeAmplificadoraGrande();
         
        *Pasadizo_Alimentacion(pieza="tapa");
             
@@ -369,7 +386,9 @@ module Eje_Transmision(){
     }
 }
 
- Eje_Transmision();
+Eje_Transmision();
+
+
  
  
      
