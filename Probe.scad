@@ -1,6 +1,5 @@
-use<gears.scad>;
 use<Mirror.scad>;
-use<publicDomainGear.scad>;
+
 
 $fn=50;
 
