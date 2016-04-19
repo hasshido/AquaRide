@@ -1,4 +1,4 @@
-// Variables
+ // Variables
 ancho_cristal=6;
 ancho_soporte=5;
 ancho_piezamain=7;
@@ -16,30 +16,6 @@ module pestanita(){
         }
 }
 
-module cilindro_eje(){
-    
-    //Cilindro para la cuerda
-    difference(){
-
-        cylinder(d=10,h=20,center=true);
-        color("teal")
-        translate([0,0,0.01])
-        translate([0,0,-20])
-            scale([1.02,1.02,1.01])
-                import("./Stl/NEMA17.stl");
-        difference(){
-            translate([0,0,5])
-                cylinder(d=12,h=6,center=true);
-            translate([0,0,5])
-                cylinder(d=7,h=6,center=true);
-        }
-
-        
-    }
-    
-}
-
-module contenedor_motor(){
 difference(){
     // Contenedor NEMA17
     translate([0,0,-25])
@@ -70,15 +46,6 @@ module Top_corner_motor(){
         }
         
         pestanita();
-        
-        translate([0,-30,0])
-            contenedor_motor();
-        
-        %translate([0,-30,20])
-        cilindro_eje();     
-
     }
 }
-
 Top_corner_motor();
-*cilindro_eje();   

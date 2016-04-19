@@ -1,5 +1,5 @@
 Dist_bar=40; //distancia de una varilla al centro
-radius_bar =5; //mm
+radius_bar =6; //mm
 largo_bar=100;
 pos_bar=[0,Dist_bar,10];
 margen_bar=1;
