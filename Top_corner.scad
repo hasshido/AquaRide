@@ -1,10 +1,10 @@
  // Variables
 ancho_cristal=6;
-ancho_soporte=5;
-ancho_piezamain=7;
+ancho_piezamain=8;
 size_piezamain=60;
 size_enganche=30;
-ancho_enganche=6;
+ancho_enganche=8;
+size_platf_poleaAlta=40;
 
 module pestanita(){
     difference(){
@@ -14,25 +14,6 @@ module pestanita(){
         translate([ancho_cristal+ancho_enganche,ancho_cristal+ancho_enganche,-size_enganche])
             cube([size_enganche,size_enganche,size_enganche]);
         }
-}
-
-difference(){
-    // Contenedor NEMA17
-    translate([0,0,-25])
-        cube([50,50,50],center=true);
-    // Hueco para NEMA17
-    color("teal")
-    translate([0,0,0.01])
-    scale([1.02,1.02,1.01])
-        import("./Stl/NEMA17.stl");
-    // Elimina varas NEMA17
-    translate([0,0,-22])
-        cube([36,36,50],center=true);
-    
-    //Hueco para la alimentación
-    translate([0,-25,-39])
-        cube([15,10,15],center=true);
-    }
 }
 
 module Top_corner_motor(){
@@ -46,6 +27,26 @@ module Top_corner_motor(){
         }
         
         pestanita();
+        
+        
+        translate([-size_platf_poleaAlta/5,-size_platf_poleaAlta/5,ancho_piezamain/2])
+            cylinder(d=size_platf_poleaAlta,h=ancho_piezamain,center=true);
+        
+        difference(){
+        translate([-size_platf_poleaAlta/5,-size_platf_poleaAlta/5,-ancho_piezamain])
+            cylinder(d2=size_platf_poleaAlta,h=ancho_piezamain*2,center=true);
+        translate([50,50,-50])    
+            cube([100,100,100],center=true);   
+         
+        }
+        
+        translate([10,5,12])
+            import("./Stl/Polea_baja.stl");
+        
+        translate([-10,-10,20])
+            import("./Stl/Polea_alta.stl");
     }
+    
+    
 }
 Top_corner_motor();
