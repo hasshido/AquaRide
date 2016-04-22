@@ -1,18 +1,23 @@
  // Variables
-ancho_cristal=6;
+ancho_cristal=5.5;
 ancho_piezamain=8;
 size_piezamain=60;
 size_enganche=30;
 ancho_enganche=8;
 size_platf_poleaAlta=40;
 
-module pestanita(){
+module pestanita(){    
+    hueco_silicona_size=40;
+
     difference(){
         translate([ancho_cristal,ancho_cristal,-size_enganche])
             cube([size_enganche,size_enganche,size_enganche]);
        
         translate([ancho_cristal+ancho_enganche,ancho_cristal+ancho_enganche,-size_enganche])
             cube([size_enganche,size_enganche,size_enganche]);
+        
+         translate([ancho_cristal/1.5,ancho_cristal/1.5,-size_enganche/2])
+            cylinder(h=size_enganche,d=20,center=true,$fn=4);
         }
 }
 
