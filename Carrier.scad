@@ -14,6 +14,7 @@ Dist_bar=40; //distancia de una varilla al centro
 Posicion_Poleas=[20,45,5];
 Diam_eje_rotatorio=23;
 Posicion_ruedas=[Dist_bar,40,-20];
+Separacion_receptor_cables=28;
 
 Imprimir = false;
 
@@ -39,6 +40,12 @@ module servo(){
                         import("./Stl/Servo_stand.stl",center = true);
            translate([-40,-25,0])
             cube(30,20,20,center=true);    
+            
+            mirrorX(Pos=[-27.5,20,0])
+            cube(30,20,20,center=true);      
+
+            
+            
         }
    *color("gray")
      rotate([0,0,90])
@@ -79,6 +86,17 @@ module Carrier(){
         translate([-0,55,51])
             //Módulo declarado en Eje_transmision.scad
             Rueda_Servo_Alpha();    
+            
+        // Añadir Receptor de cables
+        mirrorY(Pos=[-40,Separacion_receptor_cables/2,15])  
+        cube([15,5,20],center=true);
+        translate([-40,0,25])
+        rotate([0,-10,0])
+        difference(){
+            cylinder(h=10,d=28,center=true);
+            cylinder(h=11,d=22,center=true);
+        }
+ 
     }
 }
 

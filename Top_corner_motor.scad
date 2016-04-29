@@ -10,8 +10,6 @@ size_enganche=40;
 ancho_enganche=6;
 
 module pestanita(){
-    
-    
     hueco_silicona_size=40;
 
     difference(){
@@ -21,7 +19,7 @@ module pestanita(){
         translate([ancho_cristal+ancho_enganche,ancho_cristal+ancho_enganche,-size_enganche])
             cube([size_enganche,size_enganche,size_enganche]);
         
-         translate([ancho_cristal/1.5,ancho_cristal/1.5,-size_enganche/2])
+         translate([ancho_cristal/1.4,ancho_cristal/1.4,-size_enganche/2])
             cylinder(h=size_enganche,d=20,center=true,$fn=4);
         }
 }
@@ -42,11 +40,8 @@ module cilindro_eje(){
                 cylinder(d=12,h=6,center=true);
             translate([0,0,5])
                 cylinder(d=7,h=6,center=true);
-        }
-
-        
-    }
-    
+        }     
+    }  
 }
 module Top_corner_motor(){
 
@@ -61,10 +56,17 @@ module Top_corner_motor(){
         
         pestanita();
 
-        
         translate([0,-29,2])    
         nema17shaftplate(43, 45, 10);
+    
+        translate([40,-18,0])
+        difference(){
+            cylinder(h=10,d=28,center=true);
+            cylinder(h=11,d=22,center=true);
+            
+            }
 
+        
         
         // Nema17
         %color("teal")
@@ -72,12 +74,8 @@ module Top_corner_motor(){
         scale([1.00,1.00,1.00])
             import("./Stl/NEMA17.stl");
 
-
-
-
     }
 }
-
 
 Top_corner_motor();
 *cilindro_eje();   

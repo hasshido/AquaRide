@@ -32,10 +32,10 @@ module squaretube(innerWidth, innerDepth, width, depth, thickness)
 
 module nema17shaftplate(width, height, thickness) 
 {
-	mountHoleRadius = 3/2*1.1;
+	mountHoleRadius = 3/1.5*1.1;
 	mountRadius = gNema17MountDiagonal/2;
 	
-	shaftcollarradius = 11.5;
+	shaftcollarradius = 12.5;
 	
 	difference()
 	{

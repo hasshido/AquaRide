@@ -3,6 +3,8 @@ radius_bar =5.3; //mm
 largo_bar=100;
 pos_bar=[0,Dist_bar,9];
 margen_bar=1;
+ancho_cristal=5.5+0.4;
+ancho_pestanita=6;
 
 use <Mirror.scad>;
 
@@ -17,9 +19,6 @@ module varilla(){
 }
 
 
-
-
-
 module wagon(){
     difference(){
         translate([5,0,0])
@@ -30,12 +29,7 @@ module wagon(){
         
         mirrorY(pos_bar)
             varilla();
-        
 
-        //translate([-Largo_Base,0,0])
-        //rotate([0,-48,0])
-        //cube([Largo_Base*4,Anchura_Base+10,Altura_Base],center=true);
-        
         difference(){
             translate([-Largo_Base-8,-(Anchura_Base+5)/2,0+8])
              cube([Largo_Base,Anchura_Base+5,Altura_Base]);
@@ -46,11 +40,16 @@ module wagon(){
         }
 
     }
-
     
+    translate([ancho_pestanita/2+ancho_cristal,0,-10/2])
+    cube([ancho_pestanita,Anchura_Base,10],center=true);
     
-    mirrorY([5,Dist_bar/2,21])
-        import("./Stl/Polea_baja.stl");
+    mirrorY([5,Dist_bar/2,21+22])
+        union(){
+            import("./Stl/Polea_baja.stl");
+            translate([0,0,-15])
+            cylinder(d2=17,d1=25,h=22,center=true);
+        }
 
     
 }

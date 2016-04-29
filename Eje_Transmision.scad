@@ -241,7 +241,7 @@ module Eje_Transmision_Core(){
             // Plataforma superior para sujección del servo Z
             
             translate([0,0,(Altura_Tope_Eje_Z/2)+EngranajeZ_Grosor])
-               cylinder(h = (Altura_Estructura_Central-Altura_Tope_Eje_Z)/2-5EngranajeZ_Grosor, d1 = Diam_tope, d2 = Diam_Plataforma_sup, center = true/false);
+               cylinder(h = (Altura_Estructura_Central-Altura_Tope_Eje_Z)/2-EngranajeZ_Grosor, d1 = Diam_tope, d2 = Diam_Plataforma_sup, center = true/false);
             
             // Servo
             translate([36.5,62,Altura_Estructura_Central/2+12.5])
@@ -358,13 +358,13 @@ module Eje_Transmision(){
     }
     else {
         
-       *difference(){
+       difference(){
                 Eje_Transmision_Core();
                 Pasadizo_Alimentacion(pieza="hueco");
             }
      
        scale([0.9,1,0.9])
-            Eje_Z_dentado(Print=true);   
+        *Eje_Z_dentado(Print=true);   
 
 
         *Rueda_Servo_Z();
