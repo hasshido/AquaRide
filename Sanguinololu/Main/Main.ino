@@ -1,4 +1,9 @@
 #include <Servo.h>
+// Position
+
+int CoreXY_Pos[4] = {0, 0, 0, 0}; // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
+const int Aquarium_stepsX = 20000;
+const int Aquarium_stepsY = 20000;
 
 // Endstops connections
 const int endStopXSIG = A0;
@@ -83,13 +88,13 @@ bool checkEndStop(int endStopSIG)
 }
 
 
-void moveMotor(String* parameters){
-  if((parameters[1]=="X") or (parameters[1]=="Y")){
+void moveMotor(String* parameters) {
+  if ((parameters[1] == "X") or (parameters[1] == "Y")) {
     moveStepper(parameters[1].charAt(0), parameters[2].charAt(0), parameters[3].toInt());
   }
-  else if((parameters[1]=="Z") or (parameters[1]=="A")){
-  moveServo(parameters[1].charAt(0), parameters[2].toInt());
-  } 
+  else if ((parameters[1] == "Z") or (parameters[1] == "A")) {
+    moveServo(parameters[1].charAt(0), parameters[2].toInt());
+  }
   return;
 }
 
@@ -99,17 +104,19 @@ void moveServo(char Axis, int Position) {
   //      moveServo('Z', 1);
   //      moveServo('Z', 45);
   //      moveServo('Z', 120);
-  Position=max(0,Position);
-  Position=min(179,Position);
+  Position = max(0, Position);
+  Position = min(179, Position);
 
   switch (Axis) {
     case 'Z':
       myservoZ.write(Position);         // tell servo to go to position in variable 'pos'
+      CoreXY_Pos[2] = Position;         // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
       delay(500);                       // waits 15ms for the servo to reach the position
 
       break;
     case 'A':
       myservoA.write(Position);         // tell servo to go to position in variable 'pos'
+      CoreXY_Pos[3] = Position;         // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
       delay(500);                       // waits 15ms for the servo to reach the position
 
       break;
@@ -125,9 +132,10 @@ void moveServo(char Axis, int Position) {
 
 void moveStepper(char Axis, char Direction, int Steps) {
 
-  //------------------- Establecer direcciones de movimiento según las ecuaciones de COREXY
   int DirL = HIGH; // Left Stepper Direction
   int DirR = HIGH; // Right Stepper Direction
+
+  int MaxSteps = Steps; // Standard no dimension-limited case
 
 
   switch (Axis) {
@@ -135,9 +143,24 @@ void moveStepper(char Axis, char Direction, int Steps) {
       if (Direction == '+') {
         DirL = HIGH;
         DirR = HIGH;
+
+        if (CoreXY_Pos[0] + Steps >= Aquarium_stepsX) { // If we try to exceed the Aquarium dimensions
+          MaxSteps = Aquarium_stepsX - CoreXY_Pos[0]; // we just take the remaining steps
+          Serial.println("End of X reached (max)");
+        }
+        CoreXY_Pos[0] = CoreXY_Pos[0] + MaxSteps;       // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
+
+
+
       } else if (Direction == '-') {
         DirL = LOW;
         DirR = LOW;
+
+        if (CoreXY_Pos[0] - Steps <= 0) { // If we try to exceed the Aquarium dimensions
+          MaxSteps = CoreXY_Pos[0];     // we just take the remaining steps
+          Serial.println("End of X reached (0)");
+        }
+        CoreXY_Pos[0] = CoreXY_Pos[0] - MaxSteps;       // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
       } else {
         Serial.println("Direction invalid, please use + or -");
         return;
@@ -147,9 +170,21 @@ void moveStepper(char Axis, char Direction, int Steps) {
       if (Direction == '+') {
         DirL = HIGH;
         DirR = LOW;
+
+        if (CoreXY_Pos[1] + Steps >= Aquarium_stepsY) { // If we try to exceed the Aquarium dimensions
+          MaxSteps = Aquarium_stepsY - CoreXY_Pos[1]; // we just take the remaining steps
+          Serial.println("End of Y reached (max)");
+        }
+        CoreXY_Pos[1] = CoreXY_Pos[1] + MaxSteps;       // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
       } else if (Direction == '-') {
         DirL = LOW;
         DirR = HIGH;
+
+        if (CoreXY_Pos[1] - Steps <= 0) { // If we try to exceed the Aquarium dimensions
+          MaxSteps = CoreXY_Pos[1];     // we just take the remaining steps
+          Serial.println("End of Y reached (0)");
+        }
+        CoreXY_Pos[1] = CoreXY_Pos[1] - MaxSteps;       // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
       } else {
         Serial.println("Direction invalid, please use + or -");
         return;
@@ -163,7 +198,7 @@ void moveStepper(char Axis, char Direction, int Steps) {
   digitalWrite(dirPinL, DirL); // Enables the motor to move in a particular direction
   digitalWrite(dirPinR, DirR); // Enables the motor to move in a particular direction
 
-  for (int x = 0; x < Steps; x++) {
+  for (int x = 0; x < MaxSteps; x++) {
     digitalWrite(stepPinL, HIGH);
     digitalWrite(stepPinR, HIGH);
     delayMicroseconds(stepSpeed);
@@ -181,16 +216,19 @@ void move_home() {
   bool HomeY = false;
 
 
-  while (HomeX == false){
-    moveStepper('X','-',1);
-    if(!checkEndStop(endStopXSIG)){
+  while (HomeX == false) {
+    moveStepper('X', '-', 1);
+    if (!checkEndStop(endStopXSIG)) {
       HomeX = true;
+      CoreXY_Pos[0] = 0;       // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
+
     }
-  }  
-  while (HomeY == false){
-    moveStepper('Y','-',1);
-    if(!checkEndStop(endStopYSIG)){
+  }
+  while (HomeY == false) {
+    moveStepper('Y', '-', 1);
+    if (!checkEndStop(endStopYSIG)) {
       HomeY = true;
+      CoreXY_Pos[1] = 0;
     }
   }
   Serial.println("Home position reached");
@@ -254,19 +292,19 @@ void loop() {
 
   ParseParameters(parameters, command);
   //Serial.println(parameters[i]);
-  if (parameters[0]=="move"){
+  if (parameters[0] == "move") {
     Serial.println("Moving");
     moveMotor(parameters);
   }
-  else if (parameters[0]=="home"){
+  else if (parameters[0] == "home") {
     Serial.println("Homing");
-    move_home();    
+    move_home();
   }
-  else if (command == "-help"){
-      Serial.println("Operations Implemented:");
-      Serial.println("-> home");
-      Serial.println("-> move [AXIS (X,Y)] [POSITION(0,179)] ");
-      Serial.println("-> move [AXIS (Z,A)] [DIRECTION(+,-)] [STEPS] ");
+  else if (command == "-help") {
+    Serial.println("Operations Implemented:");
+    Serial.println("-> home");
+    Serial.println("-> move [AXIS (X,Y)] [POSITION(0,179)] ");
+    Serial.println("-> move [AXIS (Z,A)] [DIRECTION(+,-)] [STEPS] ");
   }
   else {
     Serial.println("Unsupported operation, for help use -help");
