@@ -2,8 +2,8 @@
 // Position
 
 int CoreXY_Pos[4] = {0, 0, 0, 0}; // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
-const int Aquarium_stepsX = 20000;
-const int Aquarium_stepsY = 20000;
+const int Aquarium_stepsX = 4000;
+const int Aquarium_stepsY = 4000;
 
 // Endstops connections
 const int endStopXSIG = A0;
@@ -141,8 +141,8 @@ void moveStepper(char Axis, char Direction, int Steps) {
   switch (Axis) {
     case 'X':
       if (Direction == '+') {
-        DirL = HIGH;
-        DirR = HIGH;
+        DirL = LOW;
+        DirR = LOW;
 
         if (CoreXY_Pos[0] + Steps >= Aquarium_stepsX) { // If we try to exceed the Aquarium dimensions
           MaxSteps = Aquarium_stepsX - CoreXY_Pos[0]; // we just take the remaining steps
@@ -153,8 +153,9 @@ void moveStepper(char Axis, char Direction, int Steps) {
 
 
       } else if (Direction == '-') {
-        DirL = LOW;
-        DirR = LOW;
+
+        DirL = HIGH;
+        DirR = HIGH;
 
         if (CoreXY_Pos[0] - Steps <= 0) { // If we try to exceed the Aquarium dimensions
           MaxSteps = CoreXY_Pos[0];     // we just take the remaining steps
@@ -168,8 +169,8 @@ void moveStepper(char Axis, char Direction, int Steps) {
       break;
     case 'Y':
       if (Direction == '+') {
-        DirL = HIGH;
-        DirR = LOW;
+        DirL = LOW;
+        DirR = HIGH;
 
         if (CoreXY_Pos[1] + Steps >= Aquarium_stepsY) { // If we try to exceed the Aquarium dimensions
           MaxSteps = Aquarium_stepsY - CoreXY_Pos[1]; // we just take the remaining steps
@@ -177,8 +178,9 @@ void moveStepper(char Axis, char Direction, int Steps) {
         }
         CoreXY_Pos[1] = CoreXY_Pos[1] + MaxSteps;       // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
       } else if (Direction == '-') {
-        DirL = LOW;
-        DirR = HIGH;
+
+        DirL = HIGH;
+        DirR = LOW;
 
         if (CoreXY_Pos[1] - Steps <= 0) { // If we try to exceed the Aquarium dimensions
           MaxSteps = CoreXY_Pos[1];     // we just take the remaining steps
