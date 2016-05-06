@@ -90,7 +90,7 @@ bool checkEndStop(int endStopSIG)
 
 void moveMotor(String* parameters) {
   if ((parameters[1] == "X") or (parameters[1] == "Y")) {
-    moveStepper(parameters[1].charAt(0), parameters[2].charAt(0), parameters[3].toInt());
+    moveStepper(parameters[1].charAt(0), parameters[2].charAt(0), parameters[3].toInt(), false);
   }
   else if ((parameters[1] == "Z") or (parameters[1] == "A")) {
     moveServo(parameters[1].charAt(0), parameters[2].toInt());
@@ -130,7 +130,7 @@ void moveServo(char Axis, int Position) {
 }
 
 
-void moveStepper(char Axis, char Direction, int Steps) {
+void moveStepper(char Axis, char Direction, int Steps, bool homing) {
 
   int DirL = HIGH; // Left Stepper Direction
   int DirR = HIGH; // Right Stepper Direction
@@ -144,7 +144,7 @@ void moveStepper(char Axis, char Direction, int Steps) {
         DirL = LOW;
         DirR = LOW;
 
-        if (CoreXY_Pos[0] + Steps >= Aquarium_stepsX) { // If we try to exceed the Aquarium dimensions
+        if ((CoreXY_Pos[0] + Steps >= Aquarium_stepsX) and (homing == false)) { // If we try to exceed the Aquarium dimensions
           MaxSteps = Aquarium_stepsX - CoreXY_Pos[0]; // we just take the remaining steps
           Serial.println("End of X reached (max)");
         }
@@ -157,7 +157,7 @@ void moveStepper(char Axis, char Direction, int Steps) {
         DirL = HIGH;
         DirR = HIGH;
 
-        if (CoreXY_Pos[0] - Steps <= 0) { // If we try to exceed the Aquarium dimensions
+        if ((CoreXY_Pos[0] - Steps <= 0) and (homing == false)) { // If we try to exceed the Aquarium dimensions
           MaxSteps = CoreXY_Pos[0];     // we just take the remaining steps
           Serial.println("End of X reached (0)");
         }
@@ -172,7 +172,7 @@ void moveStepper(char Axis, char Direction, int Steps) {
         DirL = LOW;
         DirR = HIGH;
 
-        if (CoreXY_Pos[1] + Steps >= Aquarium_stepsY) { // If we try to exceed the Aquarium dimensions
+        if ((CoreXY_Pos[1] + Steps >= Aquarium_stepsY) and (homing == false)) { // If we try to exceed the Aquarium dimensions
           MaxSteps = Aquarium_stepsY - CoreXY_Pos[1]; // we just take the remaining steps
           Serial.println("End of Y reached (max)");
         }
@@ -182,7 +182,7 @@ void moveStepper(char Axis, char Direction, int Steps) {
         DirL = HIGH;
         DirR = LOW;
 
-        if (CoreXY_Pos[1] - Steps <= 0) { // If we try to exceed the Aquarium dimensions
+        if ((CoreXY_Pos[1] - Steps <= 0) and (homing == false)) { // If we try to exceed the Aquarium dimensions
           MaxSteps = CoreXY_Pos[1];     // we just take the remaining steps
           Serial.println("End of Y reached (0)");
         }
@@ -219,7 +219,7 @@ void move_home() {
 
 
   while (HomeX == false) {
-    moveStepper('X', '-', 1);
+    moveStepper('X', '-', 1, true);
     if (!checkEndStop(endStopXSIG)) {
       HomeX = true;
       CoreXY_Pos[0] = 0;       // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
@@ -227,7 +227,7 @@ void move_home() {
     }
   }
   while (HomeY == false) {
-    moveStepper('Y', '-', 1);
+    moveStepper('Y', '-', 1, true);
     if (!checkEndStop(endStopYSIG)) {
       HomeY = true;
       CoreXY_Pos[1] = 0;

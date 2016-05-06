@@ -11,7 +11,7 @@ margen_bar=1;
 Radio_eje_rueda=2;
 Dims_rueda=[12, 22 ,12] ;
 Dist_bar=40; //distancia de una varilla al centro
-Posicion_Poleas=[20,45,5];
+Posicion_Poleas=[20,45,-20];
 Diam_eje_rotatorio=23;
 Posicion_ruedas=[Dist_bar,40,-20];
 Separacion_receptor_cables=28;
@@ -79,6 +79,7 @@ module Carrier(){
         
         // Añadir servo Alpha
         translate([0,45,5])
+            rotate([0,0,0])
             servo();
 
         // Añadir Rueda Servo Alpha
@@ -88,14 +89,16 @@ module Carrier(){
             Rueda_Servo_Alpha();    
             
         // Añadir Receptor de cables
-        mirrorY(Pos=[-40,Separacion_receptor_cables/2,15])  
-        cube([15,5,20],center=true);
-        translate([-40,0,25])
-        rotate([0,-10,0])
-        difference(){
-            cylinder(h=10,d=28,center=true);
-            cylinder(h=11,d=22,center=true);
-        }
+        translate([0,38,0])
+        mirrorY(Pos=[-40,Separacion_receptor_cables/2,10])  
+            cube([15,5,20],center=true);
+            
+        translate([-40,38,20])
+        rotate([0,-60,0])
+            difference(){
+                cylinder(h=10,d=28,center=true);
+                cylinder(h=11,d=22,center=true);
+            }
  
     }
 }
