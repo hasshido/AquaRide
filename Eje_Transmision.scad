@@ -4,7 +4,7 @@ use<publicDomainGear.scad>;
 use<Probe.scad>;
 
 
-Imprimir=false;
+Imprimir=true;
 
 EngranajeZ_Num_Dientes=9;
 EngranajeZ_Grosor=8;
@@ -23,9 +23,11 @@ Grosor_Plataforma_sup=10;
 
 Altura_Tope_Eje_Z=42; // Establecer en base al tamaño del motor
 Altura_Estructura_Central=100;
-Altura_Eje_Z_Dentado=Altura_Estructura_Central+250;
+Altura_Eje_Z_Dentado=Altura_Estructura_Central+420; /////////////////// 250;
 Altura_Soporte_Amplificadoras=48;
 
+Altura_Enganche_Eje_Z=20;
+Grosor_Enganche_Eje_Z=2;
 
 Ancho_Soporte_Amplificadoras=15;
 Ancho_Plataforma_Sup=85;
@@ -41,6 +43,7 @@ Altura_Eje_Amplificadoras=Ancho_Plataforma_Sup+15;
 
 Posicion_X_Amplificadoras=27.5;
 Margen_Holgura_Rotacion=2;
+Margen_Encaje_Eje_Z=0.5;
 
 Diam_eje_Z_dentado=Diam_eje_rotatorio-Margen_Holgura_Rotacion-Ancho_Tubo_Eje_Z;
 
@@ -54,7 +57,7 @@ module Eje_Z(){
 }
 
 module Eje_Z_dentado(Print=false){
-    !if(Print == false){
+    if(Print == false){
         difference(){
             union(){
                 intersection(){
@@ -96,24 +99,62 @@ module Eje_Z_dentado(Print=false){
 
     } 
     else{
-        // Partir la pieza por la mitad y ponerla una al lado de la otra para facilitar impresión
+        // Partir la pieza por un tercio y ponerla una al lado de la otra para facilitar impresión
+        difference(){
+            translate([0,-Altura_Eje_Z_Dentado/6,0])
+            difference(){
+                translate([0,-Altura_Enganche_Eje_Z,0])
+                rotate([90,0,0])      
+                    Eje_Z_dentado(Print=false);
+               translate([0,-Altura_Eje_Z_Dentado/3,0])
+                    cube([Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado],center=true);
+            }
+            rotate([90,0,0])
+            difference(){
+                cylinder(d=Diam_eje_Z_dentado+1,h=Altura_Enganche_Eje_Z*2,center=true);
+                cylinder(d=Diam_eje_Z_dentado-Grosor_Enganche_Eje_Z-Margen_Encaje_Eje_Z/2-0.5,h=Altura_Enganche_Eje_Z*2+1,center=true);
+            }
+        }
+        
+        // Pieza central de las 3
+        mirror([0,1,0])
+        translate([Diam_eje_Z_dentado*3,-Altura_Eje_Z_Dentado/6,0])
         difference(){
             rotate([90,0,0])      
                 Eje_Z_dentado(Print=false);
-            translate([0,Altura_Eje_Z_Dentado/2,0])
-                cube([Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado],center=true);
+            translate([0,Altura_Eje_Z_Dentado/3+Altura_Eje_Z_Dentado/8,0])
+                cube([Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado/3+Altura_Eje_Z_Dentado/4,Altura_Eje_Z_Dentado/3],center=true); 
+            translate([0,-Altura_Eje_Z_Dentado/3-Altura_Eje_Z_Dentado/8,0])
+                cube([Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado/3+Altura_Eje_Z_Dentado/4,Altura_Eje_Z_Dentado/3],center=true);     
+        
+        translate([0,-Altura_Eje_Z_Dentado/6+Altura_Enganche_Eje_Z/2,0])
+            rotate([90,0,0])
+                cylinder(d=Diam_eje_Z_dentado-Grosor_Enganche_Eje_Z+Margen_Encaje_Eje_Z/2,h=Altura_Enganche_Eje_Z,center=true);
+       translate([0,+Altura_Eje_Z_Dentado/6-Altura_Enganche_Eje_Z/2,0])
+            rotate([90,0,0])
+                cylinder(d=Diam_eje_Z_dentado-Grosor_Enganche_Eje_Z+Margen_Encaje_Eje_Z/2,h=Altura_Enganche_Eje_Z,center=true);
+            
         }
         
-        // Segunda mitad de la pieza, puesta al lado de la primera
+        
+        // Tercera pieza
         mirror([0,1,0])
-        translate([Diam_eje_Z_dentado*2,0,0])
-            intersection(){
+        translate([Diam_eje_Z_dentado*6,0,0])
+        difference(){
+            translate([0,+Altura_Eje_Z_Dentado/6,0])
+            difference(){
+                translate([0,+Altura_Enganche_Eje_Z,0])
                 rotate([90,0,0])      
                     Eje_Z_dentado(Print=false);
-                translate([0,Altura_Eje_Z_Dentado/2,0])
-                    cube([Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado],center=true);   
-                
+               translate([0,+Altura_Eje_Z_Dentado/3,0])
+                    cube([Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado,Altura_Eje_Z_Dentado],center=true);
             }
+            rotate([90,0,0])
+            difference(){
+                cylinder(d=Diam_eje_Z_dentado+1,h=Altura_Enganche_Eje_Z*2,center=true);
+                cylinder(d=Diam_eje_Z_dentado-Grosor_Enganche_Eje_Z-Margen_Encaje_Eje_Z/2-0.5,h=Altura_Enganche_Eje_Z*2+1,center=true);
+            }
+        }
     }  
 }
 
@@ -319,7 +360,7 @@ module Cilindro_Sujeccion_Vertical(){
 module Eje_Transmision(){
     if(Imprimir==false){         
 
-        union(){
+        *union(){
             difference(){
                 Eje_Transmision_Core();
                 Pasadizo_Alimentacion(pieza="hueco");
@@ -349,22 +390,22 @@ module Eje_Transmision(){
 
          
         //Rueda acoplada a servo en alpha
-        translate([60,0,25])    
+        *translate([60,0,25])    
         rotate([0,180,0])
                 Rueda_Servo_Alpha();
                 
         //Rueda para estabilizar ejeZ
-        translate([0,0,-40])
+        *translate([0,0,-40])
         Cilindro_Sujeccion_Vertical();
     }
     else {
         
-       difference(){
+       *difference(){
                 Eje_Transmision_Core();
                 Pasadizo_Alimentacion(pieza="hueco");
             }
      
-       *scale([0.9,1,0.9])
+       scale([0.9,1,0.9])
         Eje_Z_dentado(Print=true);   
 
 

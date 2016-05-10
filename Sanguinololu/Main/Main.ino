@@ -1,9 +1,10 @@
 #include <Servo.h>
-// Position
+#include <stdlib.h>
 
-int CoreXY_Pos[4] = {0, 0, 0, 0}; // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
-const int Aquarium_stepsX = 4000;
-const int Aquarium_stepsY = 4000;
+// Position
+int CoreXY_Pos[4] = {0, 0, 90, 90}; // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
+const long Aquarium_stepsX = 17000;
+const long Aquarium_stepsY = 15000;
 
 // Endstops connections
 const int endStopXSIG = A0;
@@ -15,17 +16,16 @@ const int endStopYGND = A3;
 // Stepper connections
 // In Driver Pins
 
+const int enablePin = 14;
+const int stepSpeed = 250; //usec
+
 // To set directions
 const int dirPinL = 21;
 const int dirPinR = 23;
 
-// To set steps
+// To step
 const int stepPinL = 15;
 const int stepPinR = 22;
-
-
-const int enablePin = 14;
-const int stepSpeed = 100; //usec
 
 
 // Servo Connections
@@ -33,11 +33,17 @@ const int stepSpeed = 100; //usec
 const int servoPinZ = 20;
 const int servoPinA = 19;
 
-Servo myservoZ;  // create servo object to control a servo
-Servo myservoA;  // create servo object to control a servo
-// twelve servo objects can be created on most boards
-int pos = 0;    // variable to store the servo position -----------------------------------------------------------------
+const int ServoSpeedZ = 15; //ms, more value means slower movement
+const int ServoSpeedA = 15; //ms, more value means slower movement
 
+Servo myservoZ;
+Servo myservoA;
+
+static inline int8_t sgn(int val) {
+ if (val < 0) return -1;
+ if (val==0) return 0;
+ return 1;
+}
 
 String ReadSerialCommand() {
   String cmd = "";
@@ -75,15 +81,11 @@ void ParseParameters(String* parameters, String command) {
   return;
 }
 
-
 bool checkEndStop(int endStopSIG)
 {
   bool sensorValue;
   sensorValue = digitalRead(endStopSIG);
-  if (sensorValue == false)
-  {
-    delay(500);
-  }
+
   return sensorValue;
 }
 
@@ -106,22 +108,28 @@ void moveServo(char Axis, int Position) {
   //      moveServo('Z', 120);
   Position = max(0, Position);
   Position = min(179, Position);
+  int pos = 0;
+  int sign =1;
 
   switch (Axis) {
     case 'Z':
-      myservoZ.write(Position);         // tell servo to go to position in variable 'pos'
+      sign = ((Position-CoreXY_Pos[2])/abs((Position-CoreXY_Pos[2])));
+      for (pos = CoreXY_Pos[2]; pos != Position; pos += sign) { // goes from Actual position to new one
+        myservoZ.write(pos);
+        delay(ServoSpeedZ);
+      }
       CoreXY_Pos[2] = Position;         // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
-      delay(500);                       // waits 15ms for the servo to reach the position
 
       break;
     case 'A':
-      myservoA.write(Position);         // tell servo to go to position in variable 'pos'
+      sign=((Position-CoreXY_Pos[3])/abs((Position-CoreXY_Pos[3])));
+      for (pos = CoreXY_Pos[3]; pos != Position; pos += sign ) { // goes from Actual position to new one
+        myservoA.write(pos);
+        delay(ServoSpeedA);
+      }
       CoreXY_Pos[3] = Position;         // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
-      delay(500);                       // waits 15ms for the servo to reach the position
-
       break;
     default:
-
       Serial.println("Axis not valid");
       break;
   }
@@ -148,10 +156,8 @@ void moveStepper(char Axis, char Direction, int Steps, bool homing) {
           MaxSteps = Aquarium_stepsX - CoreXY_Pos[0]; // we just take the remaining steps
           Serial.println("End of X reached (max)");
         }
-        CoreXY_Pos[0] = CoreXY_Pos[0] + MaxSteps;       // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
-
-
-
+        CoreXY_Pos[0] = CoreXY_Pos[0] + MaxSteps; 
+        
       } else if (Direction == '-') {
 
         DirL = HIGH;
@@ -223,7 +229,7 @@ void move_home() {
     if (!checkEndStop(endStopXSIG)) {
       HomeX = true;
       CoreXY_Pos[0] = 0;       // X(steps), Y(steps, Z(deg, 1-180), A(deg, 1-180)
-
+      moveStepper('X', '+', Aquarium_stepsX/8, false);
     }
   }
   while (HomeY == false) {
@@ -231,16 +237,13 @@ void move_home() {
     if (!checkEndStop(endStopYSIG)) {
       HomeY = true;
       CoreXY_Pos[1] = 0;
+      moveStepper('Y', '+', Aquarium_stepsY/8, false);
     }
   }
-  Serial.println("Home position reached");
+
+  Serial.println("Home position calibrated");
   return;
-
-
 }
-
-
-
 
 void setup() {
 
@@ -302,9 +305,36 @@ void loop() {
     Serial.println("Homing");
     move_home();
   }
+  else if (parameters[0] == "position") {
+    Serial.print("X(steps): \t");Serial.println(CoreXY_Pos[0]);
+    Serial.print("Y(steps):\t");Serial.println(CoreXY_Pos[1]);
+    Serial.print("Z(deg):\t");Serial.println(CoreXY_Pos[2]);
+    Serial.print("A(deg):\t");Serial.println(CoreXY_Pos[3]);
+  }
+  else if (parameters[0] == "run") {
+    int i=0;
+    int cycles = parameters[1].toInt();
+
+    moveStepper('Y', '-', (Aquarium_stepsY), false);
+    moveStepper('X', '-', (Aquarium_stepsX), false);
+    moveStepper('Y', '+', (Aquarium_stepsY/8), false);
+    moveStepper('X', '+', (Aquarium_stepsX/8), false);
+
+    Serial.print("cycles:");Serial.println(cycles);
+    for (i=0; i < cycles; i++){
+    
+      moveStepper('X', '+', ((Aquarium_stepsX*3)/4), false);
+      moveStepper('Y', '+', ((Aquarium_stepsY*3)/4), false);
+      moveStepper('X', '-', ((Aquarium_stepsX*3)/4), false);
+      moveStepper('Y', '-', ((Aquarium_stepsY*3)/4), false);
+      Serial.print("i:");Serial.println(i);
+    }
+  }
   else if (command == "-help") {
     Serial.println("Operations Implemented:");
     Serial.println("-> home");
+    Serial.println("-> position");
+    Serial.println("-> run [cycle number]");
     Serial.println("-> move [AXIS (X,Y)] [POSITION(0,179)] ");
     Serial.println("-> move [AXIS (Z,A)] [DIRECTION(+,-)] [STEPS] ");
   }
@@ -313,33 +343,6 @@ void loop() {
   }
 }
 
-
-//
-//  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
-//    // in steps of 1 degree
-//    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-//    delay(15);                       // waits 15ms for the servo to reach the position
-//  }
-//  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
-//    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-//    delay(15);                       // waits 15ms for the servo to reach the position
-//  }
-//
-//  delay(1000);
-//  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
-//    // in steps of 1 degree
-//    myservo2.write(pos);              // tell servo to go to position in variable 'pos'
-//    delay(15);                       // waits 15ms for the servo to reach the position
-//  }
-//  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
-//    myservo2.write(pos);              // tell servo to go to position in variable 'pos'
-//    delay(15);                       // waits 15ms for the servo to reach the position
-//
-//
-//
-//  }
-//
-//
 
 
 
