@@ -2,6 +2,7 @@ use<gears.scad>;
 use<Mirror.scad>;
 use<publicDomainGear.scad>;
 use<Probe.scad>;
+use <motormountshelfclip.scad>;
 
 
 Imprimir=true;
@@ -19,6 +20,7 @@ Diam_tope=Diam_eje_rotatorio+5;
 Diam_Eje_Amplificadoras=5;
 Diam_Plataforma_sup=45;
 Diam_Boca_Servo=22;
+Diam_eje_motor=6;
 Grosor_Plataforma_sup=10;
 
 Altura_Tope_Eje_Z=42; // Establecer en base al tamaño del motor
@@ -30,8 +32,8 @@ Altura_Enganche_Eje_Z=20;
 Grosor_Enganche_Eje_Z=2;
 
 Ancho_Soporte_Amplificadoras=15;
-Ancho_Plataforma_Sup=85;
-Ancho_Rueda_Servo_Z=9;
+Ancho_Plataforma_Sup=55;
+Ancho_Rueda_Servo_Z=13;
 Ancho_Rueda_Amplificadora_Grande=13;
 Ancho_Rueda_Amplificadora_Pequena=12;
 Ancho_Tubo_Eje_Z=4;
@@ -225,13 +227,10 @@ module Amplificadora_servo_z(){
         }
     }
 }    
-module Rueda_Servo_Z(){
+module Rueda_Stepper_Z(){
 difference(){    
-            gear (
-            mm_per_tooth    = Modulo_transmision_Eje_Z_Dentado, number_of_teeth =15,   thickness       = Ancho_Rueda_Servo_Z,   hole_diameter   = 0,    twist           = 0,   teeth_to_hide   = 0,  pressure_angle  = 28,  clearance       = 0.1,  backlash        = 0.0  );
-
-        translate([0,0,-5])
-                cylinder(h=8,d=Diam_Boca_Servo,center=true); 
+         gear (
+            mm_per_tooth    = Modulo_transmision_Servo_Z, number_of_teeth =10,   thickness       = Ancho_Rueda_Servo_Z,   hole_diameter   = Diam_eje_motor,    twist           = 0,   teeth_to_hide   = 0,  pressure_angle  = 28,  clearance       = 0.0,  backlash        = 0.0  );
         
     }
 }   
@@ -276,7 +275,10 @@ module Eje_Transmision_Core(){
             // Tope del eje con <carrier>
             cylinder(h=Altura_Tope_Eje_Z,d = Diam_tope,$fn=50,center=true);
             
-            // Eje para permitir movimiento en Z 
+            translate([0,0,-13.5])
+            cylinder(h=15,d2=Diam_tope,d1=Diam_tope+15,center=true);
+            
+            // Eje para permitir movimiento en A 
             cylinder(h=Altura_Estructura_Central,d = Diam_eje_rotatorio-Margen_Holgura_Rotacion,$fn=50,
     center=true);
             
@@ -285,36 +287,19 @@ module Eje_Transmision_Core(){
             translate([0,0,(Altura_Tope_Eje_Z/2)+EngranajeZ_Grosor])
                cylinder(h = (Altura_Estructura_Central-Altura_Tope_Eje_Z)/2-EngranajeZ_Grosor, d1 = Diam_tope, d2 = Diam_Plataforma_sup, center = true/false);
             
-            // Servo
-            translate([36.5,62,Altura_Estructura_Central/2+12.5])
-            rotate([0,90,-90])
-                Servo_Futaba_s3003();
                 
             // Plataforma para servo superior
             difference(){
-                translate([30,19,Altura_Estructura_Central/2-Grosor_Plataforma_sup/2])
-                    cube([55,Ancho_Plataforma_Sup,Grosor_Plataforma_sup],center=true);
+                translate([21,19,Altura_Estructura_Central/2-Grosor_Plataforma_sup/2])
+                    cube([38,Ancho_Plataforma_Sup,Grosor_Plataforma_sup],center=true);
                 
-                // Hueco para rueda servo Z
-                translate([46,12,12.5+Altura_Estructura_Central/2])
-                    rotate([90,-5,0])
-                    cylinder(h=Ancho_Rueda_Servo_Z+10,d=55,center=true);      
             }
             
-
-            // Cuerpo del soporte para el EJE1
-            translate([Posicion_X_Amplificadoras,-Ancho_Rueda_Amplificadora_Grande/2-Ancho_Soporte_Amplificadoras/2,(Altura_Estructura_Central/2)+(Altura_Soporte_Amplificadoras/2)])
-            Soporte_Eje_Amplificadora();
-
-           // Estructura eje para Ruedas de Amplificacion EJE 2 
-           difference(){     
-                translate([Posicion_X_Amplificadoras,63,(Altura_Estructura_Central/2)+(Altura_Soporte_Amplificadoras/2)-(Grosor_Plataforma_sup/2)])
-                    cube([Ancho_Soporte_Amplificadoras,Ancho_Soporte_Amplificadoras/3 ,Altura_Soporte_Amplificadoras+Grosor_Plataforma_sup],center=true);
-                translate([Posicion_X_Amplificadoras,Altura_Eje_Amplificadoras/2-2*Ancho_Soporte_Amplificadoras,32+Altura_Estructura_Central/2])
-                    rotate([90,0,0])
-                    EjeAmplificadoraGrande();
-            }
-            
+                    
+        
+            translate([20,15,-1+(Altura_Estructura_Central/2)+23])    
+            rotate([90,0,0])
+            nema17shaftplate(40, 45, 8);
             
             // Alineador EjeZ
            color("teal")
@@ -351,7 +336,7 @@ module Pasadizo_Alimentacion(pieza="tapa"){
     
 module Cilindro_Sujeccion_Vertical(){
     difference(){
-            cylinder(d=Diam_eje_rotatorio+50,h=7,center=true);
+            cylinder(d=Diam_eje_rotatorio+50,h=8,center=true);
         
             cylinder(d=Diam_eje_rotatorio-Margen_Holgura_Rotacion+1,h=20,center=true);
     } 
@@ -360,7 +345,7 @@ module Cilindro_Sujeccion_Vertical(){
 module Eje_Transmision(){
     if(Imprimir==false){         
 
-        *union(){
+        union(){
             difference(){
                 Eje_Transmision_Core();
                 Pasadizo_Alimentacion(pieza="hueco");
@@ -370,17 +355,26 @@ module Eje_Transmision(){
         }
      
         //Eje dentado para transmisión en Z
-            color("yellow")
-            translate([0,0,-12])
-            render()
-        Eje_Z_dentado();
+        *color("yellow")
+        translate([0,0,-12])
+        render()
+            Eje_Z_dentado();
 
-        //Rueda servo en Z
+        //Rueda stepper en Z
         *color("green")
-            translate([46,14,12.5+Altura_Estructura_Central/2])     
-            rotate([90,-5,0])
+            translate([20,0,22+Altura_Estructura_Central/2])     
+            rotate([90,19,0])
             render()
-                Rueda_Servo_Z();
+                Rueda_Stepper_Z();
+        
+        
+        // Nema17
+        %color("teal")
+        translate([20,20.5,22+Altura_Estructura_Central/2])
+        rotate([90,0,0])
+            import("./Stl/NEMA17.stl");
+
+
 
         // Sistema de engranajes
           *color("orange")
@@ -405,11 +399,11 @@ module Eje_Transmision(){
                 Pasadizo_Alimentacion(pieza="hueco");
             }
      
-       scale([0.9,1,0.9])
+       *scale([0.9,1,0.9])
         Eje_Z_dentado(Print=true);   
 
 
-        *Rueda_Servo_Z();
+        *Rueda_Stepper_Z();
         
         rotate([90,0,0])
         *Amplificadora_servo_z();           
@@ -422,7 +416,7 @@ module Eje_Transmision(){
         
        *Pasadizo_Alimentacion(pieza="tapa");
             
-        *Cilindro_Sujeccion_Vertical();
+        Cilindro_Sujeccion_Vertical();
 
         
     }
