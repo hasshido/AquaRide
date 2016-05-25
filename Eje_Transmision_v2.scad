@@ -5,7 +5,7 @@ use<Probe.scad>;
 use <motormountshelfclip.scad>;
 
 
-Imprimir=true;
+Imprimir=false;
 
 EngranajeZ_Num_Dientes=9;
 EngranajeZ_Grosor=8;
@@ -334,7 +334,7 @@ module Pasadizo_Alimentacion(pieza="tapa"){
  
 }
     
-module Cilindro_Sujeccion_Vertical(){
+module Cilindro_Sujeccion_Vertical(){ 
     difference(){
             cylinder(d=Diam_eje_rotatorio+50,h=8,center=true);
         
@@ -342,6 +342,21 @@ module Cilindro_Sujeccion_Vertical(){
     } 
 }
 
+module Endstop_Z(){
+    difference(){
+    union(){
+        translate([20,0,117.5])
+            cube([40,40,15],center=true);
+        translate([0,0,120])
+            cylinder(r=20,h=10,center=true);
+    }
+    scale([1.02,1.02,1])
+    Eje_Z();
+
+    translate([-15,0,117.5])
+        cube([15,4,15],center=true);
+    }
+}    
 module Eje_Transmision(){
     if(Imprimir==false){         
 
@@ -355,8 +370,8 @@ module Eje_Transmision(){
         }
      
         //Eje dentado para transmisión en Z
-        *color("yellow")
-        translate([0,0,-12])
+        color("yellow")
+        translate([0,0,-150])
         render()
             Eje_Z_dentado();
 
@@ -391,6 +406,8 @@ module Eje_Transmision(){
         //Rueda para estabilizar ejeZ
         *translate([0,0,-40])
         Cilindro_Sujeccion_Vertical();
+        
+        *Endstop_Z();
     }
     else {
         
@@ -416,14 +433,14 @@ module Eje_Transmision(){
         
        *Pasadizo_Alimentacion(pieza="tapa");
             
-        Cilindro_Sujeccion_Vertical();
+       *Cilindro_Sujeccion_Vertical();
 
-        
+       *Endstop_Z();
     }
 }
 
-Eje_Transmision();
-
+*Eje_Transmision();
+Endstop_Z();
 
  
  

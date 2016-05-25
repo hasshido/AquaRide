@@ -4,7 +4,7 @@
 long CoreXY_Pos[4] = {0, 0, 0, 90}; // X(steps), Y(steps, Z(steps), A(deg, 1-180)
 const long Aquarium_stepsX = 17000;
 const long Aquarium_stepsY = 15000;
-const long Aquarium_stepsZ = 2000;
+const long Aquarium_stepsZ = 9000;
 
 // Endstops connections
 const int endStopXSIG = A0;
@@ -273,8 +273,8 @@ void move_home(bool deviation = false) {
 
   while (HomeZ == false) {
     moveStepper('Z', '-', 1, true);
-    if (!checkEndStop(endStopXSIG)) {
-      HomeX = true;
+    if (checkEndStop(endStopZSIG)) {
+      HomeZ = true;
       CoreXY_Pos[2] = 0;       // X(steps), Y(steps), Z(steps), A(deg, 1-180)
       moveStepper('Z', '+', Aquarium_stepsZ * 0.8, false);
     }
@@ -285,7 +285,7 @@ void move_home(bool deviation = false) {
 
   while (HomeX == false) {
     moveStepper('X', '-', 1, true);
-    if (!checkEndStop(endStopXSIG)) {
+    if (checkEndStop(endStopXSIG)) {
       HomeX = true;
       CoreXY_Pos[0] = 0;       // X(steps), Y(steps), Z(steps), A(deg, 1-180)
       moveStepper('X', '+', Aquarium_stepsX / 8, false);
@@ -294,7 +294,7 @@ void move_home(bool deviation = false) {
   }
   while (HomeY == false) {
     moveStepper('Y', '-', 1, true);
-    if (!checkEndStop(endStopYSIG)) {
+    if (checkEndStop(endStopYSIG)) {
       HomeY = true;
       CoreXY_Pos[1] = 0;
       moveStepper('Y', '+', Aquarium_stepsY / 8, false);
