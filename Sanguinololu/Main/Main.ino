@@ -7,11 +7,16 @@ const long Aquarium_stepsY = 15000;
 const long Aquarium_stepsZ = 9000;
 
 // Endstops connections
-const int endStopXSIG = A0;
-const int endStopXGND = A1;
+const int endStopXSIG = A4;
+// const int endStopXGND = A1; //
 
-const int endStopYSIG = A2;
-const int endStopYGND = A3;
+const int Probe0 = A0; // Emitter 1 // Red and white
+const int Probe1 = A1; // ADC 1     // brown
+const int Probe2 = A2; // ADC 2     // brown and black 
+const int Probe3 = A3; // Emitter 2 // white
+
+const int endStopYSIG = 10;
+const int endStopYGND = 11;
 
 const int endStopZSIG = 16; // PC0-SCL
 const int endStopZGND = 17; // PC1-SDA
@@ -47,8 +52,54 @@ static inline int8_t sgn(int val) {
   return 1;
 }
 
+int AnalogReadAverage(int Pin, int Samples) {
+  int i=0;
+  float average=0;
+  float Measures=0;
+  float Aux=0;
+  for (i = 0; i < Samples; i++) {
+    Aux = analogRead(Pin);
+    Measures = Measures+Aux;
+  }
+  average = Measures / Samples;
+  return average;
+}
+
+void GetVoltages(int Samples=1) {
+  long V10; long V13;  //Voltage in A1, 5V in A0/A3
+  long V20; long V23;  //Voltage in A2, 5V in A0/A3
+  long i;
+  for(i=0;i<=Samples;i++){
+    //A0 = 5v
+    digitalWrite(Probe3, LOW);
+    digitalWrite(Probe0, HIGH);
+    delay(50);
+    V10 = AnalogReadAverage(Probe1, Samples);
+    V20 = AnalogReadAverage(Probe2, Samples);
+  
+    //A1 = 5v
+    digitalWrite(Probe3, HIGH);
+    digitalWrite(Probe0, LOW);
+    delay(50);
+    V13 = AnalogReadAverage(Probe1, Samples);
+    V23 = AnalogReadAverage(Probe2, Samples);
+  
+    // Send data via serial
+    // Serial.print("Pos= ");
+    Serial.print("DATA:\t");  Serial.print(CoreXY_Pos[0]);Serial.print("\t"); Serial.print(CoreXY_Pos[1]);Serial.print("\t"); 
+                              Serial.print(CoreXY_Pos[2]); Serial.print("\t"); Serial.print(CoreXY_Pos[3]);
+  
+    // Serial.print("V10,V20,V13,V23\t");
+    Serial.print("\t"); Serial.print(V10); Serial.print("\t"); Serial.print(V20);
+    Serial.print("\t"); Serial.print(V13); Serial.print("\t"); Serial.println(V23);
+  }
+}
+
+
+
 String ReadSerialCommand() {
   Serial.println("Please, enter any command. Check -help for instructions");
+  Serial.println("IDLE");
   String cmd = "";
   while (cmd == "") {
     if (Serial.available()) {
@@ -95,7 +146,7 @@ bool checkEndStop(int endStopSIG)
 
 void moveMotor(String* parameters) {
   if ((parameters[1] == "X") or (parameters[1] == "Y") or (parameters[1] == "Z")) {
-    moveStepper(parameters[1].charAt(0), parameters[2].charAt(0), parameters[3].toInt(), false);
+    moveStepper(parameters[1].charAt(0), parameters[2].charAt(0), parameters[3].toFloat(), false);
   }
   else if (parameters[1] == "A") {
     moveServo(parameters[1].charAt(0), parameters[2].toInt());
@@ -133,7 +184,7 @@ void moveServo(char Axis, int Position) {
       CoreXY_Pos[3] = Position;         // X(steps), Y(steps, Z(steps), A(deg, 1-180)
       break;
     default:
-      Serial.println("Axis not valid");
+      Serial.println("Error: Axis not valid");
       break;
   }
 
@@ -141,13 +192,13 @@ void moveServo(char Axis, int Position) {
 }
 
 
-void moveStepper(char Axis, char Direction, int Steps, bool homing) {
+void moveStepper(char Axis, char Direction, long Steps, bool homing) {
 
-  int DirL = HIGH; // Left Stepper Direction
-  int DirR = HIGH; // Right Stepper Direction
-  int DirZ = HIGH; // Upper Stepper Direction
+  bool DirL = HIGH; // Left Stepper Direction
+  bool DirR = HIGH; // Right Stepper Direction
+  bool DirZ = HIGH; // Upper Stepper Direction
 
-  int MaxSteps = Steps; // Standard no dimension-limited case
+  long MaxSteps = Steps; // Standard no dimension-limited case
 
 
   switch (Axis) {
@@ -173,7 +224,7 @@ void moveStepper(char Axis, char Direction, int Steps, bool homing) {
         }
         CoreXY_Pos[0] = CoreXY_Pos[0] - MaxSteps;       // X(steps), Y(steps, Z(steps), A(deg, 1-180)
       } else {
-        Serial.println("Direction invalid, please use + or -");
+        Serial.println("Error: Direction invalid, please use + or -");
         return;
       }
       break;
@@ -198,7 +249,7 @@ void moveStepper(char Axis, char Direction, int Steps, bool homing) {
         }
         CoreXY_Pos[1] = CoreXY_Pos[1] - MaxSteps;       // X(steps), Y(steps, Z(steps), A(deg, 1-180)
       } else {
-        Serial.println("Direction invalid, please use + or -");
+        Serial.println("Error: Direction invalid, please use + or -");
         return;
       }
       break;
@@ -223,13 +274,13 @@ void moveStepper(char Axis, char Direction, int Steps, bool homing) {
         }
         CoreXY_Pos[2] = CoreXY_Pos[2] - MaxSteps;       // X(steps), Y(steps, Z(steps), A(deg, 1-180)
       } else {
-        Serial.println("Direction invalid, please use + or -");
+        Serial.println("Error: Direction invalid, please use + or -");
         return;
       }
       break;
 
     default:
-      Serial.println("Axis not valid");
+      Serial.println("Error: Axis not valid");
       return;
   }
 
@@ -278,7 +329,7 @@ void move_home(bool deviation = false) {
       CoreXY_Pos[2] = 0;       // X(steps), Y(steps), Z(steps), A(deg, 1-180)
       moveStepper('Z', '+', Aquarium_stepsZ * 0.8, false);
     }
-    Zdif=Zdif-1;
+    Zdif = Zdif - 1;
   }
 
   moveServo('A', 90);
@@ -290,7 +341,7 @@ void move_home(bool deviation = false) {
       CoreXY_Pos[0] = 0;       // X(steps), Y(steps), Z(steps), A(deg, 1-180)
       moveStepper('X', '+', Aquarium_stepsX / 8, false);
     }
-    Xdif=Xdif-1;
+    Xdif = Xdif - 1;
   }
   while (HomeY == false) {
     moveStepper('Y', '-', 1, true);
@@ -299,7 +350,7 @@ void move_home(bool deviation = false) {
       CoreXY_Pos[1] = 0;
       moveStepper('Y', '+', Aquarium_stepsY / 8, false);
     }
-    Ydif=Ydif-1;
+    Ydif = Ydif - 1;
   }
 
 
@@ -313,7 +364,7 @@ void move_home(bool deviation = false) {
   return;
 }
 
-void run_test(int cycles=0) {
+void run_test(int cycles = 0) {
   int i = 0;
   long XtotalSteps = 0;
   long YtotalSteps = 0;
@@ -357,7 +408,7 @@ void run_test(int cycles=0) {
 void setup() {
 
   Serial.begin(115200);
-  Serial.write("AQUARIDE V1.0 \n");
+  Serial.println("AQUARIDE V1.0");
 
   // Steppers
   // Sets the stepper pins as Outputs
@@ -380,8 +431,6 @@ void setup() {
   // Endstops
   pinMode(endStopXSIG, INPUT_PULLUP);
 
-  pinMode(endStopXGND, OUTPUT);
-  digitalWrite(endStopXGND, LOW);
 
   pinMode(endStopYSIG, INPUT_PULLUP);
 
@@ -393,7 +442,20 @@ void setup() {
   pinMode(endStopZGND, OUTPUT);
   digitalWrite(endStopZGND, LOW);
 
+  // pinMode(endStopXGND, OUTPUT);
+  // digitalWrite(endStopXGND, LOW); // Connected to a GND pin
 
+
+  // Signal receivers
+
+  pinMode(Probe0, OUTPUT);
+  digitalWrite(Probe0, LOW);
+
+  pinMode(Probe1, INPUT);
+  pinMode(Probe2, INPUT);
+
+  pinMode(Probe3, OUTPUT);
+  digitalWrite(Probe3, LOW);
 
 }
 
@@ -434,13 +496,17 @@ void loop() {
   else if (command == "-help") {
     Serial.println("Operations Implemented:");
     Serial.println("-> home");
+    Serial.println("-> sample [Number of samples]");
     Serial.println("-> position");
     Serial.println("-> test [cycle number]");
     Serial.println("-> move [AXIS (X,Y,Z)] [DIRECTION(+,-)] [STEPS]");
     Serial.println("-> move [AXIS (A)]  [POSITION(0,179)]");
   }
+  else if (parameters[0] == "sample") {
+    GetVoltages(parameters[1].toInt());
+  }
   else {
-    Serial.println("Unsupported operation, for instructions use -help");
+    Serial.println("Error: Unsupported operation, for instructions use -help");
   }
 }
 
