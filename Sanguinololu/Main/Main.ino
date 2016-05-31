@@ -2,9 +2,9 @@
 
 // Position
 long CoreXY_Pos[4] = {0, 0, 0, 90}; // X(steps), Y(steps, Z(steps), A(deg, 1-180)
-const long Aquarium_stepsX = 17000;
-const long Aquarium_stepsY = 15000;
-const long Aquarium_stepsZ = 9000;
+const long Aquarium_stepsX = 17300;
+const long Aquarium_stepsY = 15200;
+const long Aquarium_stepsZ = 8300;
 
 // Endstops connections
 const int endStopXSIG = A4;
@@ -12,7 +12,7 @@ const int endStopXSIG = A4;
 
 const int Probe0 = A0; // Emitter 1 // Red and white
 const int Probe1 = A1; // ADC 1     // brown
-const int Probe2 = A2; // ADC 2     // brown and black 
+const int Probe2 = A2; // ADC 2     // brown and black
 const int Probe3 = A3; // Emitter 2 // white
 
 const int endStopYSIG = 10;
@@ -25,8 +25,8 @@ const int endStopZGND = 17; // PC1-SDA
 // In Driver Pins
 
 const int enablePin = 14;
-const int stepSpeed = 250; //usec
-const int stepSpeedZ = 400; //more value means slower movement
+const int stepSpeed = 300; //usec
+const int stepSpeedZ = 500; //more value means slower movement
 
 // To set directions L=Left, R=Right, Z=Up
 const int dirPinL = 21;
@@ -53,45 +53,57 @@ static inline int8_t sgn(int val) {
 }
 
 int AnalogReadAverage(int Pin, int Samples) {
-  int i=0;
-  float average=0;
-  float Measures=0;
-  float Aux=0;
+  int i = 0;
+  float average = 0;
+  float Measures = 0;
+  float Aux = 0;
   for (i = 0; i < Samples; i++) {
     Aux = analogRead(Pin);
-    Measures = Measures+Aux;
+    Measures = Measures + Aux;
   }
   average = Measures / Samples;
   return average;
 }
 
-void GetVoltages(int Samples=1) {
+void GetVoltages(int Samples = 1) {
+  long V100; long V200;  //Voltage in A1, A1, A2 with no voltage applied
   long V10; long V13;  //Voltage in A1, 5V in A0/A3
   long V20; long V23;  //Voltage in A2, 5V in A0/A3
   long i;
-  for(i=0;i<=Samples;i++){
+  long averageSamples = 1;
+  for (i = 0; i <= Samples; i++) {
+
+    //A0 = 5v
+    digitalWrite(Probe3, LOW);
+    digitalWrite(Probe0, LOW);
+    delay(1);
+    V100 = AnalogReadAverage(Probe1, averageSamples);
+    V200 = AnalogReadAverage(Probe2, averageSamples);
+
     //A0 = 5v
     digitalWrite(Probe3, LOW);
     digitalWrite(Probe0, HIGH);
-    delay(50);
-    V10 = AnalogReadAverage(Probe1, Samples);
-    V20 = AnalogReadAverage(Probe2, Samples);
-  
+    delay(1);
+    V10 = AnalogReadAverage(Probe1, averageSamples);
+    V20 = AnalogReadAverage(Probe2, averageSamples);
+
     //A1 = 5v
     digitalWrite(Probe3, HIGH);
     digitalWrite(Probe0, LOW);
-    delay(50);
-    V13 = AnalogReadAverage(Probe1, Samples);
-    V23 = AnalogReadAverage(Probe2, Samples);
-  
+    delay(1);
+    V13 = AnalogReadAverage(Probe1, averageSamples);
+    V23 = AnalogReadAverage(Probe2, averageSamples);
+
     // Send data via serial
     // Serial.print("Pos= ");
-    Serial.print("DATA:\t");  Serial.print(CoreXY_Pos[0]);Serial.print("\t"); Serial.print(CoreXY_Pos[1]);Serial.print("\t"); 
-                              Serial.print(CoreXY_Pos[2]); Serial.print("\t"); Serial.print(CoreXY_Pos[3]);
-  
+    Serial.print("DATA:\t");  Serial.print(CoreXY_Pos[0]); Serial.print("\t"); Serial.print(CoreXY_Pos[1]); Serial.print("\t");
+    Serial.print(CoreXY_Pos[2]); Serial.print("\t"); Serial.print(CoreXY_Pos[3]);
+
     // Serial.print("V10,V20,V13,V23\t");
+    //Serial.print("\t"); Serial.print(V100); Serial.print("\t"); Serial.print(V200);
     Serial.print("\t"); Serial.print(V10); Serial.print("\t"); Serial.print(V20);
     Serial.print("\t"); Serial.print(V13); Serial.print("\t"); Serial.println(V23);
+    delay(100);
   }
 }
 
@@ -509,6 +521,7 @@ void loop() {
     Serial.println("Error: Unsupported operation, for instructions use -help");
   }
 }
+
 
 
 
