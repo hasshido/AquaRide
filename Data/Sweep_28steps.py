@@ -87,14 +87,14 @@ Read_Aquarride( arduino )
 #Starting position -> lateral sweep
 arduino.write('move Z + 1640')
 Read_Aquarride( arduino )
-arduino.write('move Y + 5100')
+arduino.write('move Y + 5300')
 Read_Aquarride( arduino )
 
 for i in range(27):
 
 	arduino.write('move X + '+ str(cm2stepsX (1)))
 	Read_Aquarride( arduino)
-	arduino.write('sample 50')
+	arduino.write('sample 100')
 	Parse_Aquarride( arduino, fd )
 
 
