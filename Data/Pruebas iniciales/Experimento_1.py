@@ -98,7 +98,7 @@ for i in range(27):
 	Parse_Aquarride( arduino, fd )
 
 
-file.close()
+fd.close()
 print 'Experimento finalizado'
 
 sys.exit(0) # quit Python

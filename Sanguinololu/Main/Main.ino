@@ -66,7 +66,7 @@ int AnalogReadAverage(int Pin, int Samples) {
 }
 
 void GetVoltages(int Samples = 1) {
-  long V100; long V200;  //Voltage in A1, A1, A2 with no voltage applied
+  long Vdip[5];  //Voltage in A1, A1, A2 with no voltage applied
   long V10; long V13;  //Voltage in A1, 5V in A0/A3
   long V20; long V23;  //Voltage in A2, 5V in A0/A3
   long i;
@@ -77,8 +77,7 @@ void GetVoltages(int Samples = 1) {
     digitalWrite(Probe3, LOW);
     digitalWrite(Probe0, LOW);
     delay(1);
-    V100 = AnalogReadAverage(Probe1, averageSamples);
-    V200 = AnalogReadAverage(Probe2, averageSamples);
+//    Vdip[0]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
 
     //A0 = 5v
     digitalWrite(Probe3, LOW);
@@ -86,13 +85,24 @@ void GetVoltages(int Samples = 1) {
     delay(1);
     V10 = AnalogReadAverage(Probe1, averageSamples);
     V20 = AnalogReadAverage(Probe2, averageSamples);
+//    Vdip[1]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
+
+    digitalWrite(Probe3, LOW);
+    digitalWrite(Probe0, LOW);
+    delay(1);
+//    Vdip[2]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
 
     //A1 = 5v
     digitalWrite(Probe3, HIGH);
     digitalWrite(Probe0, LOW);
     delay(1);
+//    Vdip[3]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
     V13 = AnalogReadAverage(Probe1, averageSamples);
     V23 = AnalogReadAverage(Probe2, averageSamples);
+
+    digitalWrite(Probe3, LOW);
+    digitalWrite(Probe0, LOW);
+//    Vdip[4]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
 
     // Send data via serial
     // Serial.print("Pos= ");
@@ -100,9 +110,11 @@ void GetVoltages(int Samples = 1) {
     Serial.print(CoreXY_Pos[2]); Serial.print("\t"); Serial.print(CoreXY_Pos[3]);
 
     // Serial.print("V10,V20,V13,V23\t");
-    //Serial.print("\t"); Serial.print(V100); Serial.print("\t"); Serial.print(V200);
     Serial.print("\t"); Serial.print(V10); Serial.print("\t"); Serial.print(V20);
     Serial.print("\t"); Serial.print(V13); Serial.print("\t"); Serial.println(V23);
+
+//    Serial.print("Vdip:\t"); Serial.print(Vdip[0]); Serial.print("\t"); Serial.print(Vdip[1]);
+//    Serial.print("\t"); Serial.print(Vdip[2]); Serial.print("\t"); Serial.print(Vdip[3]);Serial.print("\t"); Serial.println(Vdip[4]);
     delay(100);
   }
 }
