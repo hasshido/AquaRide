@@ -45,7 +45,7 @@ def Parse_Aquarride( arduino, fd ):
 # Create data file and open it to append new data
 timestr = time.strftime("%Y-%m-%d %H:%M:%S")
 print('Creating data file') 
-name = 'Experimento-'+timestr+'.csv'  # Name of csv file
+name = 'csv/Sweep6steps-'+timestr+'.csv'  # Name of csv file
 
 
 try:
