@@ -102,4 +102,3 @@ fd.close()
 print 'Experimento finalizado'
 
 sys.exit(0) # quit Python
-4

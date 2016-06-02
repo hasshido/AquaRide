@@ -7,10 +7,7 @@ baudRate = 115200
 serialPort = '/dev/ttyUSB0'
 arduino = serial.Serial(serialPort, baudrate=baudRate, timeout=0.2)
 
-# From Calibration Phase
-Aquarium_stepsX = 17300;
-Aquarium_stepsY = 15200;
-Aquarium_stepsZ = 8300;
+
 
 def cm2stepsX ( centimeters ):
 	steps = math.floor(centimeters * 621.1) #ratio steps/cm
@@ -45,32 +42,6 @@ def Parse_Aquarride( arduino, fd ):
 			break
 	return
 
-
-def SweepRead (Axis,samples,NumPositions, fd, arduino):
-	# Sweeps selected axis and reads <NumPositions> positions with indicated number of samples
-
-	if Axis == 'X':
-		Aquarium_steps=	Aquarium_stepsX
-	elif Axis == 'Y':
-		Aquarium_steps=	Aquarium_stepsY
-	elif Axis == 'Z':
-		Aquarium_steps=	Aquarium_stepsZ
-	else:
-		print ('Warning in Sweep: axis not valid')
-		
-	StepJump= math.floor(Aquarium_steps/NumPositions)
-	for i in range(0, int(Aquarium_steps+StepJump), NumPositions):
-		arduino.write('sample '+ str(samples))
-		Parse_Aquarride( arduino, fd )
-		arduino.write('move ' + Axis + ' + ' + str(StepJump))
-		Read_Aquarride( arduino)
-
-		
-	arduino.write('move ' + Axis + ' - ' + str(Aquarium_steps))
-	Read_Aquarride( arduino)
-	return
-
-
 # Create data file and open it to append new data
 timestr = time.strftime("%Y-%m-%d %H:%M:%S")
 print('Creating data file') 
@@ -78,7 +49,7 @@ name = 'csv/'+sys.argv[0]+'-'+timestr +'.csv'  # Name of csv file
 
 
 try:
-	fd = open(name,'w')   # Trying to create a new file or open one
+	fd = open(name,'a')   # Trying to create a new file or open one
 	fd.write('POSX;POSY;POSZ;POSA;V10;V20;V13;V23\n') #headers for the data file
 
 except:
@@ -92,34 +63,13 @@ time.sleep(1)
 arduino.flushInput()
 arduino.setDTR(True)
 
+
 Read_Aquarride( arduino )
 
-# Set home position and move to position 0
-arduino.write('home')
-Read_Aquarride( arduino )
+# In the fixed position, make 5k measures (x4)
 
-arduino.write('move X - '+ str(cm2stepsX (45)))
-Read_Aquarride( arduino )
-
-arduino.write('move Y - '+ str(cm2stepsY (45)))
-Read_Aquarride( arduino )
-
-arduino.write('move Z - '+ str(cm2stepsZ (30)))
-Read_Aquarride( arduino )
-
-arduino.write('move A 50') #move probe to 90 degree angle
-Read_Aquarride( arduino )
-
-
-
-#Position->[0,0,0,50]
-#Starting position -> lateral sweep
-arduino.write('move Z + 1640')
-Read_Aquarride( arduino )
-arduino.write('move Y + 5300')
-Read_Aquarride( arduino )
-
-SweepRead ('X',300,10, fd, arduino)
+arduino.write('sample 5000')
+Parse_Aquarride( arduino, fd )
 
 
 fd.close()
