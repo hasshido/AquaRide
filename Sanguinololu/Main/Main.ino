@@ -42,7 +42,7 @@ const int stepPinZ = 3;
 // In the Z-Stop Pins
 
 const int servoPinA = 20;
-const int ServoSpeedA = 15; //ms, more value means slower movement
+const int ServoSpeedA = 10; //ms, more value means slower movement
 
 Servo myservoA;
 
@@ -77,7 +77,7 @@ void GetVoltages(int Samples = 1) {
     digitalWrite(Probe3, LOW);
     digitalWrite(Probe0, LOW);
     delay(1);
-//    Vdip[0]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
+    //    Vdip[0]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
 
     //A0 = 5v
     digitalWrite(Probe3, LOW);
@@ -85,24 +85,24 @@ void GetVoltages(int Samples = 1) {
     delay(1);
     V10 = AnalogReadAverage(Probe1, averageSamples);
     V20 = AnalogReadAverage(Probe2, averageSamples);
-//    Vdip[1]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
+    //    Vdip[1]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
 
     digitalWrite(Probe3, LOW);
     digitalWrite(Probe0, LOW);
     delay(1);
-//    Vdip[2]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
+    //    Vdip[2]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
 
     //A1 = 5v
     digitalWrite(Probe3, HIGH);
     digitalWrite(Probe0, LOW);
     delay(1);
-//    Vdip[3]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
+    //    Vdip[3]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
     V13 = AnalogReadAverage(Probe1, averageSamples);
     V23 = AnalogReadAverage(Probe2, averageSamples);
 
     digitalWrite(Probe3, LOW);
     digitalWrite(Probe0, LOW);
-//    Vdip[4]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
+    //    Vdip[4]=AnalogReadAverage(Probe0, averageSamples)-AnalogReadAverage(Probe3, averageSamples);
 
     // Send data via serial
     // Serial.print("Pos= ");
@@ -113,8 +113,8 @@ void GetVoltages(int Samples = 1) {
     Serial.print("\t"); Serial.print(V10); Serial.print("\t"); Serial.print(V20);
     Serial.print("\t"); Serial.print(V13); Serial.print("\t"); Serial.println(V23);
 
-//    Serial.print("Vdip:\t"); Serial.print(Vdip[0]); Serial.print("\t"); Serial.print(Vdip[1]);
-//    Serial.print("\t"); Serial.print(Vdip[2]); Serial.print("\t"); Serial.print(Vdip[3]);Serial.print("\t"); Serial.println(Vdip[4]);
+    //    Serial.print("Vdip:\t"); Serial.print(Vdip[0]); Serial.print("\t"); Serial.print(Vdip[1]);
+    //    Serial.print("\t"); Serial.print(Vdip[2]); Serial.print("\t"); Serial.print(Vdip[3]);Serial.print("\t"); Serial.println(Vdip[4]);
     delay(100);
   }
 }
@@ -351,19 +351,15 @@ void move_home(bool deviation = false) {
     if (checkEndStop(endStopZSIG)) {
       HomeZ = true;
       CoreXY_Pos[2] = 0;       // X(steps), Y(steps), Z(steps), A(deg, 1-180)
-      moveStepper('Z', '+', Aquarium_stepsZ * 0.8, false);
     }
     Zdif = Zdif - 1;
   }
-
-  moveServo('A', 90);
 
   while (HomeX == false) {
     moveStepper('X', '-', 1, true);
     if (checkEndStop(endStopXSIG)) {
       HomeX = true;
       CoreXY_Pos[0] = 0;       // X(steps), Y(steps), Z(steps), A(deg, 1-180)
-      moveStepper('X', '+', Aquarium_stepsX / 8, false);
     }
     Xdif = Xdif - 1;
   }
@@ -372,11 +368,9 @@ void move_home(bool deviation = false) {
     if (checkEndStop(endStopYSIG)) {
       HomeY = true;
       CoreXY_Pos[1] = 0;
-      moveStepper('Y', '+', Aquarium_stepsY / 8, false);
     }
     Ydif = Ydif - 1;
   }
-
 
   if (deviation == true) {
     Serial.print("ΔX steps :\t"); Serial.println(Xdif);

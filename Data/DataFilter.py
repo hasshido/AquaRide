@@ -13,7 +13,10 @@ def steps2cmY ( steps ):
 def steps2cmZ ( steps ):
 	cm = steps / 304.87
 	return cm
-
+def unique_rows(a):
+    a = np.ascontiguousarray(a)
+    unique_a = np.unique(a.view([('', a.dtype)]*a.shape[1]))
+    return unique_a.view(a.dtype).reshape((unique_a.shape[0], a.shape[1]))
 
 
 name = sys.argv[1]  # Name of csv file
@@ -31,19 +34,19 @@ fd.close()
 
 sizeMatrix=dataMatrix.shape #(rows, colums)
 
-numChanges = len(np.unique(dataMatrix[:,:4]))
-ResultMatrix = np.empty([numChanges-3, 8])
+Shape=(unique_rows(dataMatrix[:,:4])).shape
+numChanges = Shape[0]
+ResultMatrix = np.empty([numChanges, 8])
 
 
 
 # Calculates mean in each position during experiment
-lastBeforeLastChange=0;
+lastBeforeLastChange=-1;
 samples=1;
 changes=0;
 
 for j in  range(sizeMatrix[0]): #rows
 	if j==sizeMatrix[0]-1:
-		dataMatrix[lastBeforeLastChange+1:j+1,4:] = np.sum(dataMatrix[lastBeforeLastChange+1:j+1,4:], axis=0)/samples
 		ResultMatrix[changes,4:]= np.sum(dataMatrix[lastBeforeLastChange+1:j+1,4:], axis=0)/samples
 		#conversion to cms
 		ResultMatrix[changes,0]= steps2cmX(dataMatrix[j,0])
@@ -52,10 +55,10 @@ for j in  range(sizeMatrix[0]): #rows
 		ResultMatrix[changes,3]= dataMatrix[j,3]
 		
 	elif (np.array_equal(dataMatrix[j,:4],dataMatrix[j+1,:4])):
-		samples=samples+1
+		samples +=1
 		continue
 	else:	
-		dataMatrix[lastBeforeLastChange+1:j+1,4:] = np.sum(dataMatrix[lastBeforeLastChange+1:j+1,4:], axis=0)/samples
+
 		ResultMatrix[changes,4:]= np.sum(dataMatrix[lastBeforeLastChange+1:j+1,4:], axis=0)/samples
 		#conversion to cms
 		ResultMatrix[changes,0]= steps2cmX(dataMatrix[j,0])
@@ -65,6 +68,7 @@ for j in  range(sizeMatrix[0]): #rows
 		lastBeforeLastChange= j
 		changes += 1
 		samples = 1
+
 		
 	
 	
