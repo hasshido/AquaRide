@@ -26,8 +26,9 @@ def cm2stepsZ ( centimeters ):
 def Read_Aquarride( arduino ):
 	while True:
 		data = arduino.readline()[:-2] # \n
-		if data:
-			#print data
+#		if data:
+#			
+#			#print data
 		if data == 'IDLE':
 			break
 	return
@@ -78,13 +79,13 @@ def SweepRead (Axis,samples,NumPositions, fd, arduino):
 def SweepReadXY (samples,NumPositionsX,NumPositionsY, fd, arduino):
 	# Sweeps plane at current Z
 	
-	MaxY=5300 #Aquarium_stepsY
+	MaxY=Aquarium_stepsY
 	StepJump = np.linspace(0, MaxY, NumPositionsY, endpoint=True)[1]
 	#print ('Range Y:')
 	#print np.linspace(0, MaxY, NumPositionsY, endpoint=True)
 	k=1;
 	for j in np.linspace(0, MaxY, NumPositionsY, endpoint=True):
-		print ('Sweeping X at Y:'+str(j)+',iteration:'+str(k))
+		print ('Sweeping X at Y:'+str(j))
 		SweepRead (Axis='X',samples=samples,NumPositions=NumPositionsX, fd=fd, arduino=arduino)
 		if (j<MaxY): #Stop moving at the end of the aquarium
 			arduino.write('move Z + 1640')
@@ -100,7 +101,7 @@ def SweepReadXY (samples,NumPositionsX,NumPositionsY, fd, arduino):
 # Create data file and open it to append new data
 timestr = time.strftime("%Y-%m-%d %H:%M:%S")
 print('Creating data file') 
-name = 'csv/'+sys.argv[0]+'-'+timestr +'.csv'  # Name of csv file
+name = 'csv/'+sys.argv[0]+'-'+ raw_input('Introduzca nombre para el experimento: PeceraVacia10x10_50Samp') +timestr +'.csv'  # Name of csv file
 
 try:
 	fd = open(name,'w')   # Trying to create a new file or open one
@@ -127,10 +128,10 @@ Read_Aquarride( arduino )
 
 #Position->[0,0,0,50]
 #Starting position -> lateral sweep
-arduino.write('move Z + 1640')
+arduino.write('move Z + '+str(Aquarium_stepsZ/2))
 Read_Aquarride( arduino )
 
-SweepReadXY(samples=50,NumPositionsX=25,NumPositionsY=10, fd=fd, arduino=arduino)
+SweepReadXY(samples=50,NumPositionsX=10,NumPositionsY=10, fd=fd, arduino=arduino)
 
 fd.close()
 print 'Experimento finalizado'
