@@ -2,8 +2,8 @@
 
 // Position
 long CoreXY_Pos[4] = {0, 0, 0, 90}; // X(steps), Y(steps, Z(steps), A(deg, 1-180)
-const long Aquarium_stepsX = 17300;
-const long Aquarium_stepsY = 15200;
+const long Aquarium_stepsX = 15300;
+const long Aquarium_stepsY = 13300;
 const long Aquarium_stepsZ = 8300;
 
 // Endstops connections
@@ -71,7 +71,7 @@ void GetVoltages(int Samples = 1) {
   long V20; long V23;  //Voltage in A2, 5V in A0/A3
   long i;
   long averageSamples = 1;
-  for (i = 0; i <= Samples; i++) {
+  for (i = 0; i < Samples; i++) {
 
     //A0 = 5v
     digitalWrite(Probe3, LOW);
@@ -346,13 +346,16 @@ void move_home(bool deviation = false) {
   long Ydif = CoreXY_Pos[1];
   long Zdif = CoreXY_Pos[2];
 
-  while (HomeZ == false) {
-    moveStepper('Z', '-', 1, true);
-    if (checkEndStop(endStopZSIG)) {
-      HomeZ = true;
-      CoreXY_Pos[2] = 0;       // X(steps), Y(steps), Z(steps), A(deg, 1-180)
+
+  moveStepper('Z', '+', Aquarium_stepsZ*0.5, false);
+
+  while (HomeY == false) {
+    moveStepper('Y', '-', 1, true);
+    if (checkEndStop(endStopYSIG)) {
+      HomeY = true;
+      CoreXY_Pos[1] = 0;
     }
-    Zdif = Zdif - 1;
+    Ydif = Ydif - 1;
   }
 
   while (HomeX == false) {
@@ -363,13 +366,14 @@ void move_home(bool deviation = false) {
     }
     Xdif = Xdif - 1;
   }
-  while (HomeY == false) {
-    moveStepper('Y', '-', 1, true);
-    if (checkEndStop(endStopYSIG)) {
-      HomeY = true;
-      CoreXY_Pos[1] = 0;
+
+  while (HomeZ == false) {
+    moveStepper('Z', '-', 1, true);
+    if (checkEndStop(endStopZSIG)) {
+      HomeZ = true;
+      CoreXY_Pos[2] = 0;       // X(steps), Y(steps), Z(steps), A(deg, 1-180)
     }
-    Ydif = Ydif - 1;
+    Zdif = Zdif - 1;
   }
 
   if (deviation == true) {

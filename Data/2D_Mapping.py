@@ -5,12 +5,12 @@ import math
 import numpy as np
 
 baudRate = 115200
-serialPort = '/dev/ttyUSB2'
+serialPort = '/dev/ttyUSB1'
 arduino = serial.Serial(serialPort, baudrate=baudRate, timeout=0.2)
 
 # From Calibration Phase
-Aquarium_stepsX = 17300;
-Aquarium_stepsY = 15200;
+Aquarium_stepsX = 15300;
+Aquarium_stepsY = 13300;
 Aquarium_stepsZ = 8300;
 
 def cm2stepsX ( centimeters ):
@@ -61,8 +61,8 @@ def SweepRead (Axis,samples,NumPositions, fd, arduino):
 		print ('Warning in Sweep: axis not valid')
 	
 	StepJump = np.linspace(0, Aquarium_steps, NumPositions, endpoint=True)[1]
-	#print ('X range'+str(np.linspace(0, Aquarium_steps, NumPositions, endpoint=True)))
-
+	
+	print ('X range'+str(np.linspace(0, Aquarium_steps, NumPositions, endpoint=True)))
 	for i in np.linspace(0, Aquarium_steps, NumPositions, endpoint=True):
 		print('Sampling at X:'+str(i))
 		arduino.write('sample '+ str(samples))
@@ -88,7 +88,7 @@ def SweepReadXY (samples,NumPositionsX,NumPositionsY, fd, arduino):
 		print ('Sweeping X at Y:'+str(j))
 		SweepRead (Axis='X',samples=samples,NumPositions=NumPositionsX, fd=fd, arduino=arduino)
 		if (j<MaxY): #Stop moving at the end of the aquarium
-			arduino.write('move Z + 1640')
+			arduino.write('move Z + 4000')
 			Read_Aquarride( arduino )
 			arduino.write('move ' + 'Y' + ' + ' + str(StepJump*k))
 			Read_Aquarride( arduino)
@@ -101,7 +101,7 @@ def SweepReadXY (samples,NumPositionsX,NumPositionsY, fd, arduino):
 # Create data file and open it to append new data
 timestr = time.strftime("%Y-%m-%d %H:%M:%S")
 print('Creating data file') 
-name = 'csv/'+sys.argv[0]+'-'+ raw_input('Introduzca nombre para el experimento: PeceraVacia10x10_50Samp') +timestr +'.csv'  # Name of csv file
+name = 'csv/'+sys.argv[0]+'-'+ raw_input('Introduzca nombre para el experimento:') +timestr +'.csv'  # Name of csv file
 
 try:
 	fd = open(name,'w')   # Trying to create a new file or open one
@@ -128,10 +128,10 @@ Read_Aquarride( arduino )
 
 #Position->[0,0,0,50]
 #Starting position -> lateral sweep
-arduino.write('move Z + '+str(Aquarium_stepsZ/2))
+arduino.write('move Z + 4000')
 Read_Aquarride( arduino )
 
-SweepReadXY(samples=50,NumPositionsX=10,NumPositionsY=10, fd=fd, arduino=arduino)
+SweepReadXY(samples=20,NumPositionsX=10,NumPositionsY=20, fd=fd, arduino=arduino)
 
 fd.close()
 print 'Experimento finalizado'
