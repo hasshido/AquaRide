@@ -47,7 +47,7 @@ column = 2
 fig, ax = plt.subplots(row, column, facecolor='w', figsize=(15,10))
 
 # sets the title to be displayed at the top of the figure.
-fig.suptitle('Title of fig', fontsize=24)
+fig.suptitle(name[27:-9], fontsize=24)
 
 # iterates over each axis, ax, and plots random data
 for i, ax in enumerate(ax.flat, start=0):#######################################

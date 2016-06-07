@@ -59,6 +59,7 @@ int AnalogReadAverage(int Pin, int Samples) {
   float Aux = 0;
   for (i = 0; i < Samples; i++) {
     Aux = analogRead(Pin);
+    delay(1);
     Measures = Measures + Aux;
   }
   average = Measures / Samples;
@@ -70,7 +71,7 @@ void GetVoltages(int Samples = 1) {
   long V10; long V13;  //Voltage in A1, 5V in A0/A3
   long V20; long V23;  //Voltage in A2, 5V in A0/A3
   long i;
-  long averageSamples = 1;
+  long averageSamples = 50;
   for (i = 0; i < Samples; i++) {
 
     //A0 = 5v
@@ -345,9 +346,6 @@ void move_home(bool deviation = false) {
   long Xdif = CoreXY_Pos[0];
   long Ydif = CoreXY_Pos[1];
   long Zdif = CoreXY_Pos[2];
-
-
-  moveStepper('Z', '+', Aquarium_stepsZ*0.5, false);
 
   while (HomeY == false) {
     moveStepper('Y', '-', 1, true);

@@ -75,8 +75,8 @@ for j in  range(sizeMatrix[0]): #rows
 #plt.plot(dataMatrix[:,4:8])
 plt.plot(ResultMatrix[:,4:8])
 plt.title("Voltajes filtrados")
-plt.xlabel("Valor")
-plt.ylabel("Frecuencia")
+plt.xlabel("Posicion")
+plt.ylabel("Valor")
 plt.legend(["V10","V20","V13","V23"])
 
 try:

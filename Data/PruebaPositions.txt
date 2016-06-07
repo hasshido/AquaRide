@@ -1,0 +1,114 @@
+Creating data file
+Introduzca nombre para el experimento:AQUARIDE V1.0
+Please, enter any command. Check -help for instructions
+IDLE
+Command:home
+Homing
+Home position located
+Please, enter any command. Check -help for instructions
+IDLE
+Command:move A 125
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Command:move Z + 4000
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sweeping X at Y:0.0
+Sampling at X:0.0
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:805.263157895
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:1610.52631579
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:2415.78947368
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:3221.05263158
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:4026.31578947
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:4831.57894737
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:5636.84210526
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:6442.10526316
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:7247.36842105
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:8052.63157895
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:8857.89473684
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:9663.15789474
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:10468.4210526
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:11273.6842105
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:12078.9473684
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:12884.2105263
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:13689.4736842
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:14494.7368421
+Command:move X + 805.263157895
+Moving
+Please, enter any command. Check -help for instructions
+IDLE
+Sampling at X:15300.0
