@@ -71,8 +71,8 @@ void GetVoltages(int Samples = 1) {
   long V10; long V13;  //Voltage in A1, 5V in A0/A3
   long V20; long V23;  //Voltage in A2, 5V in A0/A3
   long i;
-  long averageSamples = 50;
-  for (i = 0; i < Samples; i++) {
+  long averageSamples = Samples;
+  //for (i = 0; i < Samples; i++) {
 
     //A0 = 5v
     digitalWrite(Probe3, LOW);
@@ -116,8 +116,8 @@ void GetVoltages(int Samples = 1) {
 
     //    Serial.print("Vdip:\t"); Serial.print(Vdip[0]); Serial.print("\t"); Serial.print(Vdip[1]);
     //    Serial.print("\t"); Serial.print(Vdip[2]); Serial.print("\t"); Serial.print(Vdip[3]);Serial.print("\t"); Serial.println(Vdip[4]);
-    delay(100);
-  }
+  //  delay(100);
+  //}
 }
 
 

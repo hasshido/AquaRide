@@ -5,7 +5,7 @@ import math
 import numpy as np
 
 baudRate = 115200
-serialPort = '/dev/ttyUSB0'
+serialPort = '/dev/ttyUSB1'
 arduino = serial.Serial(serialPort, baudrate=baudRate, timeout=0.2)
 
 # From Calibration Phase
@@ -130,12 +130,12 @@ Read_Aquarride( arduino )
 
 #Position->[0,0,0,50]
 #Starting position -> lateral sweep
-Z=4000; #height
+Z=1700; #height
 
 arduino.write('move Z + ' + str(Z))
 Read_Aquarride( arduino )
 
-SweepReadXY(samples=1,NumPositionsX=20,NumPositionsY=20, Z=Z, fd=fd, arduino=arduino)
+SweepReadXY(samples=300,NumPositionsX=20,NumPositionsY=20, Z=Z, fd=fd, arduino=arduino)
 
 fd.close()
 print 'Experimento finalizado'
