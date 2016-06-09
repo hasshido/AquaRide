@@ -29,7 +29,12 @@ except:
 	print('No se pudo abrir el archivo indicado')
 	sys.exit(0) # quit Python
 
-dataMatrix=np.loadtxt(fd,delimiter=";",skiprows=1)
+Header1 = fd.readline()
+Header2 = fd.readline()
+
+
+
+dataMatrix=np.loadtxt(fd,delimiter=";",skiprows=0)
 fd.close()
 
 sizeMatrix=dataMatrix.shape #(rows, colums)
@@ -49,9 +54,9 @@ for j in  range(sizeMatrix[0]): #rows
 	if j==sizeMatrix[0]-1:
 		ResultMatrix[changes,4:]= np.sum(dataMatrix[lastBeforeLastChange+1:j+1,4:], axis=0)/samples
 		#conversion to cms
-		ResultMatrix[changes,0]= steps2cmX(dataMatrix[j,0])
-		ResultMatrix[changes,1]= steps2cmY(dataMatrix[j,1])
-		ResultMatrix[changes,2]= steps2cmZ(dataMatrix[j,2])
+		ResultMatrix[changes,0]= dataMatrix[j,0]
+		ResultMatrix[changes,1]= dataMatrix[j,1]
+		ResultMatrix[changes,2]= dataMatrix[j,2]
 		ResultMatrix[changes,3]= dataMatrix[j,3]
 		
 	elif (np.array_equal(dataMatrix[j,:4],dataMatrix[j+1,:4])):
@@ -61,9 +66,9 @@ for j in  range(sizeMatrix[0]): #rows
 
 		ResultMatrix[changes,4:]= np.sum(dataMatrix[lastBeforeLastChange+1:j+1,4:], axis=0)/samples
 		#conversion to cms
-		ResultMatrix[changes,0]= steps2cmX(dataMatrix[j,0])
-		ResultMatrix[changes,1]= steps2cmY(dataMatrix[j,1])
-		ResultMatrix[changes,2]= steps2cmZ(dataMatrix[j,2])
+		ResultMatrix[changes,0]= dataMatrix[j,0]
+		ResultMatrix[changes,1]= dataMatrix[j,1]
+		ResultMatrix[changes,2]= dataMatrix[j,2]
 		ResultMatrix[changes,3]= dataMatrix[j,3]		
 		lastBeforeLastChange= j
 		changes += 1
@@ -79,15 +84,13 @@ plt.xlabel("Posicion")
 plt.ylabel("Valor")
 plt.legend(["V10","V20","V13","V23"])
 
-try:
-	fd = open(namedst,'w')   # Trying to open
 
-except:
-	print('No se pudo abrir el archivo indicado')
-	sys.exit(0) # quit Python
+with open(namedst,'w') as f_handle:
+	f_handle.write(Header1)
+	f_handle.write(Header2)
 
-np.savetxt(namedst, ResultMatrix, delimiter=";", fmt="%.2f")
+	np.savetxt(f_handle, ResultMatrix, delimiter=";", fmt="%.2f")
 
-fd.close()
+f_handle.close()
 plt.show()
 sys.exit(0)

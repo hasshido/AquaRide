@@ -4,7 +4,19 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
+import time
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+
+def steps2cmX ( steps ):
+	cm = steps / 621.1
+	return cm
+def steps2cmY ( steps ):
+	cm = steps / 651.46
+	return cm
+def steps2cmZ ( steps ):
+	cm = steps / 304.87
+	return cm
 
 
 name = sys.argv[1]  # Name of csv file
@@ -16,27 +28,50 @@ except:
 	print('No se pudo abrir el archivo indicado')
 	sys.exit(0) # quit Python
 
-dataMatrix=np.loadtxt(fd,delimiter=";",skiprows=0)
+meshData = fd.readline()
+meshData = meshData[:-1].split(";")
+
+
+dataMatrix=np.loadtxt(fd,delimiter=";",skiprows=1)
 fd.close()
 
-NumPosX=len(np.unique(dataMatrix[:,0]))
-NumPosY=len(np.unique(dataMatrix[:,1]))
-V=np.empty([NumPosY,NumPosX,4])
+V=np.empty([int(meshData[2]),int(meshData[4]),4])
+MaxX=int(meshData[6])
+MaxY=int(meshData[8])
 
-for i in range(NumPosY):
-	for j in range(NumPosX):
-#		print 'V['+str(i)+','+str(j)+']=dataMatrix['+str((NumPosX*i)+j)+',4]'
-#		print 'dataMatrix['+str((NumPosX*i)+j)+',4]='+str(dataMatrix[(NumPosX*i)+j,4])
-		V[i,j,:]=dataMatrix[(NumPosX*i)+j,4:]
-V=np.flipud(V)
+X_index = np.linspace(0, MaxX, meshData[2], endpoint=True)
+Y_index = np.linspace(0, MaxY, meshData[4], endpoint=True)
 
+for rows in dataMatrix:
+	X_aprox = min(X_index, key=lambda x:abs(x-rows[0]))
+	X= np.where(X_index==X_aprox)[0]
+	
+	Y_aprox = min(Y_index, key=lambda x:abs(x-rows[1]))
+	Y= np.where(Y_index==Y_aprox)[0]
+
+	V[X,Y,:]=rows[4:]
+	
+
+
+#NumPosX=len(np.unique(dataMatrix[:,0]))
+#NumPosY=len(np.unique(dataMatrix[:,1]))
+#V=np.empty([NumPosY,NumPosX,4])
+
+
+
+#for i in range(NumPosY):
+#	for j in range(NumPosX):
+##		print 'V['+str(i)+','+str(j)+']=dataMatrix['+str((NumPosX*i)+j)+',4]'
+##		print 'dataMatrix['+str((NumPosX*i)+j)+',4]='+str(dataMatrix[(NumPosX*i)+j,4])
+#		V[i,j,:]=dataMatrix[(NumPosX*i)+j,4:]
+V=np.rot90(V)
+
+V[V == 0.0] = np.nan
 V10=V[:,:,0]
 V20=V[:,:,1]
 V13=V[:,:,2]
 V23=V[:,:,3]
 names=['V10','V20','V13','V23']
-
-
 
 # specifies the number of rows and columns in the figure. this will create (row x column) number of subplots.
 row = 2
@@ -56,13 +91,13 @@ for i, ax in enumerate(ax.flat, start=0):#######################################
   ax.set_title(names[i])
   
   # plots random data using the 'jet' colormap
-  img = ax.imshow(V[:,:,i], vmin=V[:,:,i].min(), vmax=V[:,:,i].max(),interpolation='none')
+  img = ax.imshow(V[:,:,i], vmin=np.nanmin(V[:,:,i]), vmax=np.nanmax(V[:,:,i]),interpolation='none')
   
   # creates a new axis, cax, located 0.05 inches to the right of ax, whose width is 15% of ax
   # cax is used to plot a colorbar for each subplot
   div = make_axes_locatable(ax)
   cax = div.append_axes("right", size="15%", pad=0.05)
-  cbar = plt.colorbar(img, cax=cax, ticks=np.arange(V[:,:,i].min(),V[:,:,i].max(),1), format="%.2f")
+  cbar = plt.colorbar(img, cax=cax, ticks=np.arange(np.nanmin(V[:,:,i]),np.nanmax(V[:,:,i]),1), format="%.2f")
   cbar.set_label('Colorbar {}'.format(i), size=10)
   
   # removes x and y ticks
@@ -95,6 +130,8 @@ plt.show()
 #fig.subplots_adjust(right=0.8)
 #cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
 #fig.colorbar(im, cax=cbar_ax)
+
+
 
 
 
