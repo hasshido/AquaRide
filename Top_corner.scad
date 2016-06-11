@@ -35,11 +35,11 @@ module Top_corner_motor(){
         
         
         translate([-size_platf_poleaAlta/5,-size_platf_poleaAlta/5,ancho_piezamain/2])
-            cylinder(d=size_platf_poleaAlta,h=ancho_piezamain,center=true);
+            cylinder(r=size_platf_poleaAlta/2,h=ancho_piezamain,center=true);
         
         difference(){
         translate([-size_platf_poleaAlta/5,-size_platf_poleaAlta/5,-ancho_piezamain])
-            cylinder(d2=size_platf_poleaAlta,h=ancho_piezamain*2,center=true);
+            cylinder(r2=size_platf_poleaAlta/2,h=ancho_piezamain*2,center=true);
         translate([50,50,-50])    
             cube([100,100,100],center=true);   
          

@@ -60,7 +60,7 @@ module Carrier(){
             cube([102,110,10],center=true);
 
             // Hueco central
-            cylinder(h=30,d=Diam_eje_rotatorio,$fn=50,center=true);
+            cylinder(h=30,r=Diam_eje_rotatorio/2,$fn=50,center=true);
         }
         // Añadir poleas
         color("orange")
@@ -96,8 +96,8 @@ module Carrier(){
         translate([-40,38,20])
         rotate([0,-60,0])
             difference(){
-                cylinder(h=10,d=28,center=true);
-                cylinder(h=11,d=22,center=true);
+                cylinder(h=10,r=28/2,center=true);
+                cylinder(h=11,r=22/2,center=true);
             }
  
     }

@@ -6,7 +6,8 @@ margen_bar=1;
 ancho_cristal=5.5+0.4;
 ancho_pestanita=6;
 
-use <Mirror.scad>;
+use <Mirror.scad>
+use <Polea_baja.scad>
 
 Altura_Base=36;
 Anchura_Base= (Dist_bar*2)+20;
@@ -27,7 +28,7 @@ module wagon(){
         translate([0,-Anchura_Base/2-5,-Altura_Base])
             cube([Largo_Base,Anchura_Base+10,Altura_Base]);
         
-        mirrorY(pos_bar)
+        %mirrorY(pos_bar)
             varilla();
 
         difference(){
@@ -36,20 +37,13 @@ module wagon(){
             
             translate([-8,0,8])
             rotate([90,0,0])
-            cylinder(d=20,h=Anchura_Base+6,center=true);   
+            cylinder(r=10,h=Anchura_Base+6,center=true);   
         }
 
     }
     
-    translate([ancho_pestanita/2+ancho_cristal,0,-10/2])
-    cube([ancho_pestanita,Anchura_Base,10],center=true);
-    
-    mirrorY([5,Dist_bar/2,21+22])
-        union(){
-            import("./Stl/Polea_baja.stl");
-            translate([0,0,-15])
-            cylinder(d2=17,d1=25,h=22,center=true);
-        }
+    mirrorY([5,Dist_bar/2,21])
+        Polea_baja();
 
     
 }

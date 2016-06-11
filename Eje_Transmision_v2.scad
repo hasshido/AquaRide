@@ -439,8 +439,8 @@ module Eje_Transmision(){
     }
 }
 
-*Eje_Transmision();
-Endstop_Z();
+Eje_Transmision();
+*Endstop_Z();
 
  
  

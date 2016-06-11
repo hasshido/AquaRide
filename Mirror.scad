@@ -1,47 +1,47 @@
 module mirrorXY(Pos=[10,10,0])
  {
     translate(Pos)
-        children();
+        child();
     
     mirror([1,0,0])
         translate(Pos)
-            children();
+            child();
     mirror([0,1,0])
         translate(Pos)
-           children();
+           child();
 
     mirror([1,0,0])
         mirror([0,1,0])
             translate(Pos)
-                children();
+                child();
 }
 
 // Módulos
 module mirrorX(Pos=[10,10,0])
  {
     translate(Pos)
-        children(); 
+        child(); 
     mirror([1,0,0])
         translate(Pos)
-            children();
+            child();
 }
 
 module mirrorY(Pos=[10,10,0])
  {
     translate(Pos)
-        children(); 
+        child(); 
     mirror([0,1,0])
         translate(Pos)
-           children();
+           child();
 }
 
 module mirrorZ(Pos=[10,10,0])
  {
     translate(Pos)
-        children(); 
+        child(); 	
     mirror([0,1,0])
         translate(Pos)
-           children();
+           child();
 }
 
 

@@ -57,7 +57,7 @@ difference(){
          translate([0,aux*distance_sections,0])
             rotate([90,0,0])
                 difference(){
-                    cylinder(d=diam_screw_head+1, h=height_screw*2+separation,center=true,$fn=6);
+                    cylinder(r=(diam_screw_head+1)/2, h=height_screw*2+separation,center=true,$fn=6);
                     
                 }
         }
