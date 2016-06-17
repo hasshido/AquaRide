@@ -2,12 +2,16 @@ import serial
 import time
 import sys
 import math
+import numpy as np
 
 baudRate = 115200
 serialPort = '/dev/ttyUSB0'
 arduino = serial.Serial(serialPort, baudrate=baudRate, timeout=0.2)
 
-
+# From Calibration Phase
+Aquarium_stepsX = 15300;
+Aquarium_stepsY = 13300;
+Aquarium_stepsZ = 8300;
 
 def cm2stepsX ( centimeters ):
 	steps = math.floor(centimeters * 621.1) #ratio steps/cm
@@ -23,6 +27,7 @@ def Read_Aquarride( arduino ):
 	while True:
 		data = arduino.readline()[:-2] # \n
 		if data:
+			
 			print data
 		if data == 'IDLE':
 			break
@@ -42,20 +47,49 @@ def Parse_Aquarride( arduino, fd ):
 			break
 	return
 
+
+def SweepRead (Axis,samples,NumPositions, fd, arduino):
+	# Sweeps selected axis and reads <NumPositions> positions with indicated number of samples
+
+	if Axis == 'X':
+		Aquarium_steps=	Aquarium_stepsX
+	elif Axis == 'Y':
+		Aquarium_steps=	Aquarium_stepsY
+	elif Axis == 'Z':
+		Aquarium_steps=	Aquarium_stepsZ
+	else:
+		print ('Warning in Sweep: axis not valid')
+	
+	StepJump = np.linspace(0, Aquarium_steps, NumPositions, endpoint=True)[1]
+	
+	#print ('X range'+str(np.linspace(0, Aquarium_steps, NumPositions, endpoint=True)))
+	for i in np.linspace(0, Aquarium_steps, NumPositions, endpoint=True):
+		print('Sampling at X:'+str(i))
+		arduino.write('sample '+ str(samples))
+		Parse_Aquarride( arduino, fd )
+		if (i<Aquarium_steps): #Stop moving at the end of the aquarium
+			arduino.write('move ' + Axis + ' + ' + str(StepJump))
+			Read_Aquarride( arduino)
+		else:
+#			arduino.write('home')
+#			Read_Aquarride( arduino)
+			arduino.write('move ' + Axis + ' - ' + str(Aquarium_steps))
+			Read_Aquarride( arduino)
+	return
+		
+
 # Create data file and open it to append new data
 timestr = time.strftime("%Y-%m-%d %H:%M:%S")
 print('Creating data file') 
-name = 'csv/Sweep27steps-'+timestr+'.csv'  # Name of csv file
-
+name = 'csv/'+sys.argv[0]+'-'+ raw_input('Introduzca nombre para el experimento:')+'-' +timestr +'.csv'  # Name of csv file
 
 try:
-	fd = open(name,'a')   # Trying to create a new file or open one
+	fd = open(name,'w')   # Trying to create a new file or open one
 	fd.write('POSX;POSY;POSZ;POSA;V10;V20;V13;V23\n') #headers for the data file
 
 except:
 	print('Something went wrong! Can\'t tell what?')
 	sys.exit(0) # quit Python
-
 
 # Manual Reset
 arduino.setDTR(False)
@@ -63,40 +97,26 @@ time.sleep(1)
 arduino.flushInput()
 arduino.setDTR(True)
 
-
 Read_Aquarride( arduino )
 
 # Set home position and move to position 0
 arduino.write('home')
 Read_Aquarride( arduino )
 
-arduino.write('move X - '+ str(cm2stepsX (45)))
+arduino.write('move A 125')
 Read_Aquarride( arduino )
-
-arduino.write('move Y - '+ str(cm2stepsY (45)))
-Read_Aquarride( arduino )
-
-arduino.write('move Z - '+ str(cm2stepsZ (30)))
-Read_Aquarride( arduino )
-
-arduino.write('move A 50') #move probe to 90 degree angle
-Read_Aquarride( arduino )
-
 
 #Position->[0,0,0,50]
 #Starting position -> lateral sweep
-arduino.write('move Z + 1640')
+Z=2000; #height
+Y=4000;
+
+arduino.write('move Z + ' + str(Z))
 Read_Aquarride( arduino )
-arduino.write('move Y + 5300')
+arduino.write('move Y + ' + str(Y))
 Read_Aquarride( arduino )
 
-for i in range(27):
-
-	arduino.write('move X + '+ str(cm2stepsX (1)))
-	Read_Aquarride( arduino)
-	arduino.write('sample 100')
-	Parse_Aquarride( arduino, fd )
-
+SweepRead(Axis='X',samples=300,NumPositions=30, fd=fd, arduino=arduino)
 
 fd.close()
 print 'Experimento finalizado'

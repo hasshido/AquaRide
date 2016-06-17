@@ -35,8 +35,8 @@ def Read_Aquarride( arduino ):
 
 def Check_Object(lineSamples):
 	flag = False
-	FrontFlag=True
-	BackFlag=True
+	FrontFlag=False
+	BackFlag=False
 	objectThreshold = 8	
 	if lineSamples.shape[0]>1:
 		V10dif=lineSamples[-1,4]-lineSamples[-2,4]
