@@ -16,9 +16,9 @@ fd.close()
 
 	
 plt.plot(dataMatrix[:,4:8])
-plt.title("Barrido lateral de un bote aislante")
+plt.title("Barrido lateral: Pecera Vacia")
 plt.xlabel("Posicion")
 plt.ylabel("Valor")
-plt.legend(["V10","V20","V13","V23"],loc='best')
+plt.legend(["V23"],loc='best')
 plt.show()
 sys.exit(0)

@@ -47,7 +47,6 @@ def Check_Object(lineSamples):
 		FrontIndicator= V10dif+V20dif-V13dif-V23dif
 		BackIndicator= -V10dif-V20dif+V13dif+V23dif
 		
-		
 		FrontFlag= FrontIndicator>objectThreshold and V10dif>0 and V20dif>0 and V13dif<0 and V23dif<0
 		BackFlag= BackIndicator>objectThreshold and V10dif<0 and V20dif<0 and V13dif>0 and V23dif>0
 		state=''
@@ -179,7 +178,7 @@ Z=1750; #height
 arduino.write('move Z + ' + str(Z))
 Read_Aquarride( arduino )
 
-NumPositionsX=20
+NumPositionsX=15
 NumPositionsY=15
 
 fd.write('PositionsExploration:;NumX=;'+str(NumPositionsX)+';NumY=;'+str(NumPositionsY)+';MaxX=;'+str(Aquarium_stepsX)+';MaxY=;'+str(Aquarium_stepsY)+'\n') #headers for the data file

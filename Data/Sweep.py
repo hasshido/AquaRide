@@ -109,14 +109,14 @@ Read_Aquarride( arduino )
 #Position->[0,0,0,50]
 #Starting position -> lateral sweep
 Z=2000; #height
-Y=4000;
+Y=5500;
 
 arduino.write('move Z + ' + str(Z))
 Read_Aquarride( arduino )
 arduino.write('move Y + ' + str(Y))
 Read_Aquarride( arduino )
 
-SweepRead(Axis='X',samples=300,NumPositions=30, fd=fd, arduino=arduino)
+SweepRead(Axis='X',samples=300,NumPositions=10, fd=fd, arduino=arduino)
 
 fd.close()
 print 'Experimento finalizado'
