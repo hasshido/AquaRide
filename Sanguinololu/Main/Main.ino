@@ -52,9 +52,8 @@ static inline int8_t sgn(int val) {
   return 1;
 }
 
-int AnalogReadAverage(int Pin, int Samples) {
+float AnalogReadAverage(int Pin, int Samples) {
   int i = 0;
-  float average = 0;
   float Measures = 0;
   float Aux = 0;
   for (i = 0; i < Samples; i++) {
@@ -62,8 +61,7 @@ int AnalogReadAverage(int Pin, int Samples) {
     delay(1);
     Measures = Measures + Aux;
   }
-  average = Measures / Samples;
-  return average;
+  return Measures / Samples;
 }
 
 void GetVoltages(int Samples = 1) {
