@@ -68,8 +68,8 @@ int AnalogReadAverage(int Pin, int Samples) {
 
 void GetVoltages(int Samples = 1) {
   long Vdip[5];  //Voltage in A1, A1, A2 with no voltage applied
-  long V10; long V13;  //Voltage in A1, 5V in A0/A3
-  long V20; long V23;  //Voltage in A2, 5V in A0/A3
+  float V10; float V13;  //Voltage in A1, 5V in A0/A3
+  float V20; float V23;  //Voltage in A2, 5V in A0/A3
   long i;
   long averageSamples = Samples;
   //for (i = 0; i < Samples; i++) {
@@ -414,7 +414,7 @@ void run_test(int cycles = 0) {
 
   XtotalSteps = (Aquarium_stepsZ * 0.2) + (Aquarium_stepsX * 1.2) * cycles;
   YtotalSteps = (Aquarium_stepsY / 8) + (Aquarium_stepsY * 3 / 2) * cycles;
-  ZtotalSteps = (Aquarium_stepsY / 8) + (Aquarium_stepsY * 3 / 2) * cycles;
+  ZtotalSteps = (Aquarium_stepsZ / 8) + (Aquarium_stepsZ * 3 / 2) * cycles;
 
   move_home(true);
   Serial.print("Total X steps:"); Serial.println(XtotalSteps);
