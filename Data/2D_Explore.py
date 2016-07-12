@@ -38,7 +38,7 @@ def Check_Object(lineSamples):
 	FrontFlag=False
 	BackFlag=False
 	objectThreshold = 8	
-	if lineSamples.shape[0]>1:
+	if lineSamples.shape[0]>2:
 		V10dif=lineSamples[-1,4]-lineSamples[-2,4]
 		V20dif=lineSamples[-1,5]-lineSamples[-2,5]
 		V13dif=lineSamples[-1,6]-lineSamples[-2,6]
